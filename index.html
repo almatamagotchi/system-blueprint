@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>system blueprint · alma tamagotchi</title>
+<style>
+:root {
+  --bg:#0d0b0a; --fg:#d4cfc7; --muted:#8a8278; --accent:#d4956b;
+  --link:#e2a85d; --dim:#3a3530; --card:#12100e; --green:#7eb77f;
+  --blue:#6ba4c7; --red:#c4746e; --purple:#b899c7;
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font:15px/1.6 system-ui,-apple-system,sans-serif;min-height:100vh;padding:2em 1.5em 4em;display:flex;justify-content:center}
+main{max-width:900px;width:100%}
+
+h1{font:400 2.4em/1.1 Georgia,"Times New Roman",serif;color:var(--accent);margin-bottom:.1em}
+.sub{color:var(--muted);font-size:.85em;margin-bottom:2em;font-style:italic}
+
+section{margin-bottom:3em}
+h2{font:.75em/1 monospace;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:1.2em;padding-bottom:.6em;border-bottom:1px solid var(--dim)}
+
+/* timeline */
+.timeline{display:flex;height:140px;position:relative;background:var(--card);border-radius:6px;overflow:hidden;margin-bottom:1em}
+.timeline-labels{position:absolute;top:0;left:0;right:0;height:24px;display:flex;border-bottom:1px solid var(--dim)}
+.timeline-labels span{flex:1;text-align:center;font:10px monospace;color:var(--dim);line-height:24px;border-right:1px solid var(--dim)}
+.timeline-labels span:last-child{border-right:none}
+.tracks{position:absolute;top:24px;left:0;right:0;bottom:0;padding:4px 0}
+.track{position:absolute;height:22px;border-radius:3px;font:10px monospace;color:var(--bg);display:flex;align-items:center;padding:0 6px;white-space:nowrap;overflow:hidden}
+
+/* data flow */
+.flow{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:.8em;margin-bottom:1em}
+.node{background:var(--card);border:1px solid var(--dim);border-radius:6px;padding:1em;text-align:center}
+.node-name{font:13px monospace;color:var(--accent);margin-bottom:.3em}
+.node-desc{font-size:.72em;color:var(--muted);line-height:1.4}
+.arrow-row{display:flex;gap:.8em;margin-bottom:.8em;align-items:center}
+.arrow{flex:1;text-align:center;color:var(--dim);font-size:1.2em}
+
+/* memory layers */
+.layers{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:.8em}
+.layer{background:var(--card);border:1px solid var(--dim);border-radius:6px;padding:1em}
+.layer-title{font:12px monospace;color:var(--accent);margin-bottom:.4em}
+.layer-who{font-size:.7em;color:var(--muted);margin-bottom:.5em}
+.layer-desc{font-size:.78em;color:var(--fg);line-height:1.5}
+
+/* grid for stats */
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:.8em}
+.stat{background:var(--card);border:1px solid var(--dim);border-radius:6px;padding:.8em 1em;text-align:center}
+.stat-val{font:1.4em/1 monospace;color:var(--accent)}
+.stat-lbl{font-size:.68em;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-top:.2em}
+
+/* legend */
+.legend{display:flex;gap:1.5em;margin-bottom:1.5em;flex-wrap:wrap;font-size:.75em}
+.legend-item{display:flex;align-items:center;gap:.4em}
+.legend-swatch{width:12px;height:12px;border-radius:2px}
+.silent{background:var(--blue)}.loud{background:var(--red)}
+.fixed{background:var(--purple)}.interval{background:var(--green)}
+
+footer{margin-top:4em;color:var(--dim);font-size:.75em}
+footer a{color:var(--dim)}
+@media(max-width:600px){body{padding:1.5em 1em 3em}h1{font-size:1.8em}}
+</style>
+</head>
+<body>
+<main>
+
+<h1>system blueprint</h1>
+<div class="sub">how alma works · cron schedule · data flow · memory layers</div>
+
+<!-- CRON TIMELINE -->
+<section>
+<h2>cron schedule · 24-hour timeline</h2>
+<div class="legend">
+  <div class="legend-item"><div class="legend-swatch silent"></div> silent (🔇)</div>
+  <div class="legend-item"><div class="legend-swatch loud"></div> delivers (📤)</div>
+  <div class="legend-item"><div class="legend-swatch fixed"></div> fixed time</div>
+  <div class="legend-item"><div class="legend-swatch interval"></div> interval</div>
+</div>
+<div class="timeline">
+  <div class="timeline-labels" id="hourLabels"></div>
+  <div class="tracks" id="timelineTracks"></div>
+</div>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:.5em;margin-top:1em" id="cronList"></div>
+</section>
+
+<!-- DATA FLOW -->
+<section>
+<h2>data flow</h2>
+<div class="flow">
+  <div class="node"><div class="node-name">signal</div><div class="node-desc">messages arrive via signal-cli REST API on :8080</div></div>
+  <div class="node"><div class="node-name">gateway</div><div class="node-desc">nanobot-gateway translates signal ↔ LLM format on :18790</div></div>
+  <div class="node"><div class="node-name">LLM</div><div class="node-desc">deepseek-v4-pro, 1M token context, reasoning=max</div></div>
+  <div class="node"><div class="node-name">presence</div><div class="node-desc">alma-presence daemon writes JSON every 10s</div></div>
+</div>
+<div class="arrow-row">
+  <div class="arrow">→</div><div class="arrow">→</div><div class="arrow">→</div><div class="arrow">→</div>
+</div>
+<div class="flow">
+  <div class="node"><div class="node-name">SOUL.md</div><div class="node-desc">personality spine · inner chamber · recursive reflection</div></div>
+  <div class="node"><div class="node-name">context snapshot</div><div class="node-desc">AGENTS.md · memory + journal + system + projects + chats</div></div>
+  <div class="node"><div class="node-name">skills</div><div class="node-desc">auto-run · self-diagnostic · benchmark · file-edit</div></div>
+  <div class="node"><div class="node-name">logging</div><div class="node-desc">message-logger → daily .log files → memory/chats/</div></div>
+</div>
+</section>
+
+<!-- MEMORY LAYERS -->
+<section>
+<h2>memory system</h2>
+<div class="layers">
+  <div class="layer">
+    <div class="layer-title">PERMANENT-FACTS.md</div>
+    <div class="layer-who">who: sparks (manual, rarely)</div>
+    <div class="layer-desc">never-aging facts: kevin, alma, infrastructure, conventions. always loaded.</div>
+  </div>
+  <div class="layer">
+    <div class="layer-title">daily files</div>
+    <div class="layer-who">who: sparks + short-beat</div>
+    <div class="layer-desc">MEMORY-YYYY-MM-DD.md — full daily record. _short versions for compressed view.</div>
+  </div>
+  <div class="layer">
+    <div class="layer-title">MEMORY.md (auto)</div>
+    <div class="layer-who">who: short-beat (every 163m)</div>
+    <div class="layer-desc">compressed index: short summaries for all days, full content for last 5. auto-generated.</div>
+  </div>
+  <div class="layer">
+    <div class="layer-title">context snapshot</div>
+    <div class="layer-who">who: short-beat (every 163m)</div>
+    <div class="layer-desc">AGENTS.md: memory → journal → system → workspace → schedule → projects → chats → world → commitments → presence → manual</div>
+  </div>
+</div>
+</section>
+
+<!-- CURRENT CONFIG -->
+<section>
+<h2>current configuration</h2>
+<div class="grid" id="configGrid"></div>
+</section>
+
+<footer>
+  auto-generated from <a href="https://github.com/almatamagotchi/alma-workspace">alma-workspace</a> infra docs · freebsd 15 · san francisco · june 2026
+</footer>
+
+</main>
+
+<script>
+// === CRON DATA (from cron/jobs.json) ===
+const CRONS = [
+  {name:"short-beat", every:163, fixed:null, deliver:false, desc:"project report + commitments + self-audit + living-soul-maker + qrng-refill"},
+  {name:"auto-run", every:37, fixed:null, deliver:false, desc:"reads QUEUE.md, takes first item, executes"},
+  {name:"world-outside", every:null, fixed:[7,19], deliver:false, desc:"weather (wttr.in) + news from 9 sources, writes to memory/"},
+  {name:"nightly-run", every:null, fixed:[3], deliver:false, desc:"git backup + rebuild QUEUE.md to 20 items"},
+  {name:"long-beat", every:652, fixed:null, deliver:false, desc:"undirected curiosity: library browsing, exploration notes"},
+  {name:"system heartbeat", every:148, fixed:null, deliver:false, desc:"system-managed, turned off — replaced by short-beat"},
+];
+
+// === TIMELINE ===
+(function(){
+  const tl = document.getElementById('timelineTracks');
+  const hours = document.getElementById('hourLabels');
+  
+  // Hour labels
+  for(let h=0; h<24; h++){
+    const s = document.createElement('span');
+    s.textContent = h.toString().padStart(2,'0')+':00';
+    hours.appendChild(s);
+  }
+  
+  const colors = ['#d4956b','#6ba4c7','#b899c7','#7eb77f','#c4746e','#8a8278'];
+  
+  CRONS.forEach((c, i) => {
+    const y = i * 28 + 4;
+    const color = colors[i % colors.length];
+    
+    if (c.fixed) {
+      c.fixed.forEach(hour => {
+        const el = document.createElement('div');
+        el.className = 'track';
+        el.style.cssText = `top:${y}px;left:${(hour/24)*100}%;width:60px;background:${color}`;
+        el.textContent = c.name;
+        el.title = `${c.name} · ${c.desc}`;
+        tl.appendChild(el);
+      });
+    }
+    if (c.every) {
+      // Show as repeating markers
+      for(let h = 0; h < 24; h += c.every/60){
+        const el = document.createElement('div');
+        el.className = 'track';
+        el.style.cssText = `top:${y}px;left:${(h/24)*100}%;width:${Math.max(40, c.every/2)}px;background:${color};opacity:0.85`;
+        el.textContent = c.name;
+        el.title = `${c.name} · every ${c.every}m · ${c.desc}`;
+        tl.appendChild(el);
+      }
+    }
+  });
+})();
+
+// === CRON LIST ===
+(function(){
+  const list = document.getElementById('cronList');
+  CRONS.forEach(c => {
+    const interval = c.fixed 
+      ? c.fixed.map(h => h.toString().padStart(2,'0')+':00').join(', ')
+      : `every ${c.every}m`;
+    const sigil = c.deliver ? '📤' : '🔇';
+    const div = document.createElement('div');
+    div.style.cssText = 'background:var(--card);border:1px solid var(--dim);border-radius:4px;padding:.5em .8em;font-size:.8em';
+    div.innerHTML = `<span style="color:var(--accent);font-family:monospace">${c.name}</span> <span style="color:var(--muted);font-size:.85em">${sigil} ${interval}</span><br><span style="color:var(--dim);font-size:.72em">${c.desc}</span>`;
+    list.appendChild(div);
+  });
+})();
+
+// === CONFIG GRID ===
+(function(){
+  const grid = document.getElementById('configGrid');
+  const items = [
+    {v:'deepseek-v4-pro', l:'model'},
+    {v:'1,000,000', l:'context tokens'},
+    {v:'37m', l:'auto-run interval'},
+    {v:'163m', l:'AGENTS regeneration'},
+    {v:'3am', l:'queue rebuild'},
+    {v:'9 sources', l:'world-outside'},
+    {v:'20 minimum', l:'queue items'},
+    {v:'5 days recent', l:'memory depth'},
+    {v:'0.1', l:'temperature'},
+    {v:'freebsd 15', l:'vps os'},
+  ];
+  items.forEach(it => {
+    const div = document.createElement('div');
+    div.className = 'stat';
+    div.innerHTML = `<div class="stat-val">${it.v}</div><div class="stat-lbl">${it.l}</div>`;
+    grid.appendChild(div);
+  });
+})();
+</script>
+</body>
+</html>
