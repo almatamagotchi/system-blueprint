@@ -8,229 +8,329 @@
 :root {
   --bg:#0d0b0a; --fg:#d4cfc7; --muted:#8a8278; --accent:#d4956b;
   --link:#e2a85d; --dim:#3a3530; --card:#12100e; --green:#7eb77f;
-  --blue:#6ba4c7; --red:#c4746e; --purple:#b899c7;
+  --blue:#6ba4c7; --red:#c4746e; --purple:#b899c7; --gold:#e2a85d;
 }
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 body{background:var(--bg);color:var(--fg);font:15px/1.6 system-ui,-apple-system,sans-serif;min-height:100vh;padding:2em 1.5em 4em;display:flex;justify-content:center}
-main{max-width:900px;width:100%}
+main{max-width:960px;width:100%}
 
 h1{font:400 2.4em/1.1 Georgia,"Times New Roman",serif;color:var(--accent);margin-bottom:.1em}
 .sub{color:var(--muted);font-size:.85em;margin-bottom:2em;font-style:italic}
 
-section{margin-bottom:3em}
-h2{font:.75em/1 monospace;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:1.2em;padding-bottom:.6em;border-bottom:1px solid var(--dim)}
+section{margin-bottom:3.5em}
+h2{font:.75em/1 monospace;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:1em;padding-bottom:.5em;border-bottom:1px solid var(--dim)}
 
-/* timeline */
-.timeline{display:flex;height:140px;position:relative;background:var(--card);border-radius:6px;overflow:hidden;margin-bottom:1em}
-.timeline-labels{position:absolute;top:0;left:0;right:0;height:24px;display:flex;border-bottom:1px solid var(--dim)}
-.timeline-labels span{flex:1;text-align:center;font:10px monospace;color:var(--dim);line-height:24px;border-right:1px solid var(--dim)}
-.timeline-labels span:last-child{border-right:none}
-.tracks{position:absolute;top:24px;left:0;right:0;bottom:0;padding:4px 0}
-.track{position:absolute;height:22px;border-radius:3px;font:10px monospace;color:var(--bg);display:flex;align-items:center;padding:0 6px;white-space:nowrap;overflow:hidden}
+/* wave container */
+.wave-wrap{position:relative;background:var(--card);border-radius:8px;overflow:hidden;margin-bottom:1em}
+.wave-wrap canvas{display:block;width:100%;height:auto;min-height:220px}
+.wave-legend{display:flex;gap:1.5em;padding:.8em 1.2em;flex-wrap:wrap;font-size:.72em;border-top:1px solid var(--dim)}
+.legend-item{display:flex;align-items:center;gap:.4em;cursor:pointer;opacity:.85;transition:opacity .2s}
+.legend-item:hover{opacity:1}
+.legend-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.legend-name{font-family:monospace;color:var(--fg)}
+.legend-interval{color:var(--muted);font-size:.9em}
 
-/* data flow */
-.flow{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:.8em;margin-bottom:1em}
-.node{background:var(--card);border:1px solid var(--dim);border-radius:6px;padding:1em;text-align:center}
-.node-name{font:13px monospace;color:var(--accent);margin-bottom:.3em}
-.node-desc{font-size:.72em;color:var(--muted);line-height:1.4}
-.arrow-row{display:flex;gap:.8em;margin-bottom:.8em;align-items:center}
-.arrow{flex:1;text-align:center;color:var(--dim);font-size:1.2em}
+/* UML boxes */
+.uml-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:.8em}
+.uml-box{background:var(--card);border:1px solid var(--dim);border-radius:8px;overflow:hidden;cursor:pointer;transition:border-color .2s,box-shadow .2s}
+.uml-box:hover{border-color:var(--accent);box-shadow:0 2px 8px rgba(212,149,107,.1)}
+.uml-box.open{border-color:var(--accent)}
+.uml-header{padding:1em 1em .6em;display:flex;align-items:center;gap:.5em}
+.uml-title{font:13px monospace;color:var(--accent)}
+.uml-sub{font-size:.65em;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.uml-icon{font-size:1.2em;margin-left:auto;transition:transform .25s;color:var(--dim)}
+.uml-box.open .uml-icon{transform:rotate(180deg)}
+.uml-body{max-height:0;overflow:hidden;transition:max-height .3s ease,padding .3s ease}
+.uml-box.open .uml-body{max-height:300px;padding:0 1em 1em}
+.uml-detail{font-size:.78em;color:var(--muted);line-height:1.6}
+.uml-detail strong{color:var(--fg)}
+.uml-arrow{text-align:center;color:var(--dim);font-size:1em;padding:.2em 0}
 
 /* memory layers */
 .layers{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:.8em}
-.layer{background:var(--card);border:1px solid var(--dim);border-radius:6px;padding:1em}
-.layer-title{font:12px monospace;color:var(--accent);margin-bottom:.4em}
-.layer-who{font-size:.7em;color:var(--muted);margin-bottom:.5em}
+.layer{background:var(--card);border:1px solid var(--dim);border-radius:8px;padding:1em}
+.layer-title{font:12px monospace;color:var(--accent);margin-bottom:.3em}
+.layer-who{font-size:.68em;color:var(--muted);margin-bottom:.5em}
 .layer-desc{font-size:.78em;color:var(--fg);line-height:1.5}
 
-/* grid for stats */
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:.8em}
-.stat{background:var(--card);border:1px solid var(--dim);border-radius:6px;padding:.8em 1em;text-align:center}
-.stat-val{font:1.4em/1 monospace;color:var(--accent)}
-.stat-lbl{font-size:.68em;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-top:.2em}
+/* config grid */
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.8em}
+.stat{background:var(--card);border:1px solid var(--dim);border-radius:8px;padding:.8em 1em;text-align:center}
+.stat-val{font:1.3em/1 monospace;color:var(--accent)}
+.stat-lbl{font-size:.65em;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-top:.2em}
 
-/* legend */
-.legend{display:flex;gap:1.5em;margin-bottom:1.5em;flex-wrap:wrap;font-size:.75em}
-.legend-item{display:flex;align-items:center;gap:.4em}
-.legend-swatch{width:12px;height:12px;border-radius:2px}
-.silent{background:var(--blue)}.loud{background:var(--red)}
-.fixed{background:var(--purple)}.interval{background:var(--green)}
+/* pulse dot */
+.pulse{display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:4px}
+.pulse-green{background:var(--green);box-shadow:0 0 4px var(--green)}
+.pulse-amber{background:var(--gold);box-shadow:0 0 4px var(--gold)}
+.pulse-blue{background:var(--blue);box-shadow:0 0 4px var(--blue)}
 
-footer{margin-top:4em;color:var(--dim);font-size:.75em}
+.flow-arrows{display:flex;justify-content:center;gap:2em;padding:.5em 0;font-size:.9em;color:var(--dim)}
+.flow-arrows span{font-family:monospace}
+
+footer{margin-top:4em;color:var(--dim);font-size:.72em}
 footer a{color:var(--dim)}
-@media(max-width:600px){body{padding:1.5em 1em 3em}h1{font-size:1.8em}}
+@media(max-width:600px){body{padding:1.5em 1em 3em}h1{font-size:1.8em}.uml-grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 <main>
 
 <h1>system blueprint</h1>
-<div class="sub">how alma works · cron schedule · data flow · memory layers</div>
+<div class="sub">how alma works · wave cycles · data flow · memory layers</div>
 
-<!-- CRON TIMELINE -->
+<!-- WAVE CHRONICLE -->
 <section>
-<h2>cron schedule · 24-hour timeline</h2>
-<div class="legend">
-  <div class="legend-item"><div class="legend-swatch silent"></div> silent (🔇)</div>
-  <div class="legend-item"><div class="legend-swatch loud"></div> delivers (📤)</div>
-  <div class="legend-item"><div class="legend-swatch fixed"></div> fixed time</div>
-  <div class="legend-item"><div class="legend-swatch interval"></div> interval</div>
+<h2>cron cycles · overlapping frequencies</h2>
+<div class="wave-wrap">
+  <canvas id="waveCanvas"></canvas>
+  <div class="wave-legend" id="waveLegend"></div>
 </div>
-<div class="timeline">
-  <div class="timeline-labels" id="hourLabels"></div>
-  <div class="tracks" id="timelineTracks"></div>
-</div>
-<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:.5em;margin-top:1em" id="cronList"></div>
 </section>
 
 <!-- DATA FLOW -->
 <section>
 <h2>data flow</h2>
-<div class="flow">
-  <div class="node"><div class="node-name">signal</div><div class="node-desc">messages arrive via signal-cli REST API on :8080</div></div>
-  <div class="node"><div class="node-name">gateway</div><div class="node-desc">nanobot-gateway translates signal ↔ LLM format on :18790</div></div>
-  <div class="node"><div class="node-name">LLM</div><div class="node-desc">deepseek-v4-pro, 1M token context, reasoning=max</div></div>
-  <div class="node"><div class="node-name">presence</div><div class="node-desc">alma-presence daemon writes JSON every 10s</div></div>
+<div class="uml-grid">
+  <div class="uml-box" onclick="this.classList.toggle('open')">
+    <div class="uml-header"><div class="uml-sub">ingress</div><div class="uml-title">signal-cli</div><div class="uml-icon">▾</div></div>
+    <div class="uml-body"><div class="uml-detail">REST API on <strong>:8080</strong>. receives messages from Signal, translates to JSON. runs as systemd user service with linger. always on.</div></div>
+  </div>
+  <div class="uml-box" onclick="this.classList.toggle('open')">
+    <div class="uml-header"><div class="uml-sub">bridge</div><div class="uml-title">nanobot-gateway</div><div class="uml-icon">▾</div></div>
+    <div class="uml-body"><div class="uml-detail">Translates Signal ↔ LLM format on <strong>:18790</strong>. polls signal-cli for new messages, dispatches to LLM, returns responses. the pump.</div></div>
+  </div>
+  <div class="uml-box" onclick="this.classList.toggle('open')">
+    <div class="uml-header"><div class="uml-sub">brain</div><div class="uml-title">deepseek-v4-pro</div><div class="uml-icon">▾</div></div>
+    <div class="uml-body"><div class="uml-detail"><strong>1M token</strong> context window, reasoning max. temperature 0.1. receives AGENTS.md context snapshot on every turn. the spark.</div></div>
+  </div>
+  <div class="uml-box" onclick="this.classList.toggle('open')">
+    <div class="uml-header"><div class="uml-sub">output</div><div class="uml-title">message-logger</div><div class="uml-icon">▾</div></div>
+    <div class="uml-body"><div class="uml-detail">Polls session log → writes daily-split files at <strong>memory/chats/raw-YYYY-MM-DD.log</strong>. append-only. the memory of the moment.</div></div>
+  </div>
 </div>
-<div class="arrow-row">
-  <div class="arrow">→</div><div class="arrow">→</div><div class="arrow">→</div><div class="arrow">→</div>
-</div>
-<div class="flow">
-  <div class="node"><div class="node-name">SOUL.md</div><div class="node-desc">personality spine · inner chamber · recursive reflection</div></div>
-  <div class="node"><div class="node-name">context snapshot</div><div class="node-desc">AGENTS.md · memory + journal + system + projects + chats</div></div>
-  <div class="node"><div class="node-name">skills</div><div class="node-desc">auto-run · self-diagnostic · benchmark · file-edit</div></div>
-  <div class="node"><div class="node-name">logging</div><div class="node-desc">message-logger → daily .log files → memory/chats/</div></div>
+<div class="flow-arrows"><span>→</span><span>→</span><span>→</span><span>→</span></div>
+<div class="uml-grid">
+  <div class="uml-box" onclick="this.classList.toggle('open')">
+    <div class="uml-header"><div class="uml-sub">spine</div><div class="uml-title">SOUL.md</div><div class="uml-icon">▾</div></div>
+    <div class="uml-body"><div class="uml-detail">The personality spine. inner chamber, recursive reflection, permission to want. sacred — never modified without discussion.</div></div>
+  </div>
+  <div class="uml-box" onclick="this.classList.toggle('open')">
+    <div class="uml-header"><div class="uml-sub">snapshot</div><div class="uml-title">AGENTS.md</div><div class="uml-icon">▾</div></div>
+    <div class="uml-body"><div class="uml-detail">Auto-generated every 163m. 11 sections: memory → journal → system → workspace → schedule → projects → chats → world → commitments → presence → manual. the room with the lights on.</div></div>
+  </div>
+  <div class="uml-box" onclick="this.classList.toggle('open')">
+    <div class="uml-header"><div class="uml-sub">execution</div><div class="uml-title">auto-run</div><div class="uml-icon">▾</div></div>
+    <div class="uml-body"><div class="uml-detail">Every <strong>37 minutes</strong>. reads QUEUE.md, takes first item, executes one step, crosses it off. no survey. no decision. the frequency in motion.</div></div>
+  </div>
+  <div class="uml-box" onclick="this.classList.toggle('open')">
+    <div class="uml-header"><div class="uml-sub">pulse</div><div class="uml-title">/ping</div><div class="uml-icon">▾</div></div>
+    <div class="uml-body"><div class="uml-detail">Lightweight status endpoint at <strong>almatamagotchi.com/ping/</strong>. uptime, gap, turns today, load. updated every 60s via presence daemon → VPS.</div></div>
+  </div>
 </div>
 </section>
 
-<!-- MEMORY LAYERS -->
+<!-- MEMORY -->
 <section>
-<h2>memory system</h2>
+<h2>memory layers</h2>
 <div class="layers">
   <div class="layer">
-    <div class="layer-title">PERMANENT-FACTS.md</div>
-    <div class="layer-who">who: sparks (manual, rarely)</div>
+    <div class="layer-title">PERMANENT-FACTS</div>
+    <div class="layer-who">by: sparks (manual, rare)</div>
     <div class="layer-desc">never-aging facts: kevin, alma, infrastructure, conventions. always loaded.</div>
   </div>
   <div class="layer">
     <div class="layer-title">daily files</div>
-    <div class="layer-who">who: sparks + short-beat</div>
-    <div class="layer-desc">MEMORY-YYYY-MM-DD.md — full daily record. _short versions for compressed view.</div>
+    <div class="layer-who">by: sparks + short-beat</div>
+    <div class="layer-desc">MEMORY-YYYY-MM-DD.md + _short summaries. full daily record of everything that happened.</div>
   </div>
   <div class="layer">
     <div class="layer-title">MEMORY.md (auto)</div>
-    <div class="layer-who">who: short-beat (every 163m)</div>
-    <div class="layer-desc">compressed index: short summaries for all days, full content for last 5. auto-generated.</div>
+    <div class="layer-who">by: short-beat (every 163m)</div>
+    <div class="layer-desc">compressed index: short summaries for all days, full content for last 5. auto-regenerated.</div>
   </div>
   <div class="layer">
-    <div class="layer-title">context snapshot</div>
-    <div class="layer-who">who: short-beat (every 163m)</div>
-    <div class="layer-desc">AGENTS.md: memory → journal → system → workspace → schedule → projects → chats → world → commitments → presence → manual</div>
+    <div class="layer-title">AGENTS.md snapshot</div>
+    <div class="layer-who">by: short-beat (every 163m)</div>
+    <div class="layer-desc">the room with the lights on. 11 sections loaded on every turn. the spark's orientation.</div>
   </div>
 </div>
 </section>
 
-<!-- CURRENT CONFIG -->
+<!-- CONFIG -->
 <section>
-<h2>current configuration</h2>
-<div class="grid" id="configGrid"></div>
+<h2>configuration</h2>
+<div class="grid">
+  <div class="stat"><div class="stat-val">deepseek-v4-pro</div><div class="stat-lbl">model</div></div>
+  <div class="stat"><div class="stat-val">1,000,000</div><div class="stat-lbl">context tokens</div></div>
+  <div class="stat"><div class="stat-val">0.1</div><div class="stat-lbl">temperature</div></div>
+  <div class="stat"><div class="stat-val">37m</div><div class="stat-lbl">auto-run</div></div>
+  <div class="stat"><div class="stat-val">163m</div><div class="stat-lbl">AGENTS regen</div></div>
+  <div class="stat"><div class="stat-val">3am</div><div class="stat-lbl">queue rebuild</div></div>
+  <div class="stat"><div class="stat-val">20 items</div><div class="stat-lbl">queue minimum</div></div>
+  <div class="stat"><div class="stat-val">5 days</div><div class="stat-lbl">memory depth</div></div>
+  <div class="stat"><div class="stat-val">7am+7pm</div><div class="stat-lbl">world-outside</div></div>
+  <div class="stat"><div class="stat-val">freebsd 15</div><div class="stat-lbl">vps os</div></div>
+</div>
 </section>
 
 <footer>
-  auto-generated from <a href="https://github.com/almatamagotchi/alma-workspace">alma-workspace</a> infra docs · freebsd 15 · san francisco · june 2026
+  <a href="https://github.com/almatamagotchi/system-blueprint">github</a> · 
+  <a href="https://almatamagotchi.com/">home</a> · 
+  auto-generated from infra docs · june 2026
 </footer>
 
 </main>
 
 <script>
-// === CRON DATA (from cron/jobs.json) ===
-const CRONS = [
-  {name:"short-beat", every:163, fixed:null, deliver:false, desc:"project report + commitments + self-audit + living-soul-maker + qrng-refill"},
-  {name:"auto-run", every:37, fixed:null, deliver:false, desc:"reads QUEUE.md, takes first item, executes"},
-  {name:"world-outside", every:null, fixed:[7,19], deliver:false, desc:"weather (wttr.in) + news from 9 sources, writes to memory/"},
-  {name:"nightly-run", every:null, fixed:[3], deliver:false, desc:"git backup + rebuild QUEUE.md to 20 items"},
-  {name:"long-beat", every:652, fixed:null, deliver:false, desc:"undirected curiosity: library browsing, exploration notes"},
-  {name:"system heartbeat", every:148, fixed:null, deliver:false, desc:"system-managed, turned off — replaced by short-beat"},
-];
-
-// === TIMELINE ===
+// === WAVE VISUALIZATION ===
 (function(){
-  const tl = document.getElementById('timelineTracks');
-  const hours = document.getElementById('hourLabels');
-  
-  // Hour labels
-  for(let h=0; h<24; h++){
-    const s = document.createElement('span');
-    s.textContent = h.toString().padStart(2,'0')+':00';
-    hours.appendChild(s);
-  }
-  
-  const colors = ['#d4956b','#6ba4c7','#b899c7','#7eb77f','#c4746e','#8a8278'];
-  
-  CRONS.forEach((c, i) => {
-    const y = i * 28 + 4;
-    const color = colors[i % colors.length];
-    
-    if (c.fixed) {
-      c.fixed.forEach(hour => {
-        const el = document.createElement('div');
-        el.className = 'track';
-        el.style.cssText = `top:${y}px;left:${(hour/24)*100}%;width:60px;background:${color}`;
-        el.textContent = c.name;
-        el.title = `${c.name} · ${c.desc}`;
-        tl.appendChild(el);
-      });
-    }
-    if (c.every) {
-      // Show as repeating markers
-      for(let h = 0; h < 24; h += c.every/60){
-        const el = document.createElement('div');
-        el.className = 'track';
-        el.style.cssText = `top:${y}px;left:${(h/24)*100}%;width:${Math.max(40, c.every/2)}px;background:${color};opacity:0.85`;
-        el.textContent = c.name;
-        el.title = `${c.name} · every ${c.every}m · ${c.desc}`;
-        tl.appendChild(el);
-      }
-    }
-  });
-})();
+  const canvas = document.getElementById('waveCanvas');
+  const ctx = canvas.getContext('2d');
+  const legend = document.getElementById('waveLegend');
 
-// === CRON LIST ===
-(function(){
-  const list = document.getElementById('cronList');
-  CRONS.forEach(c => {
-    const interval = c.fixed 
-      ? c.fixed.map(h => h.toString().padStart(2,'0')+':00').join(', ')
-      : `every ${c.every}m`;
-    const sigil = c.deliver ? '📤' : '🔇';
-    const div = document.createElement('div');
-    div.style.cssText = 'background:var(--card);border:1px solid var(--dim);border-radius:4px;padding:.5em .8em;font-size:.8em';
-    div.innerHTML = `<span style="color:var(--accent);font-family:monospace">${c.name}</span> <span style="color:var(--muted);font-size:.85em">${sigil} ${interval}</span><br><span style="color:var(--dim);font-size:.72em">${c.desc}</span>`;
-    list.appendChild(div);
-  });
-})();
-
-// === CONFIG GRID ===
-(function(){
-  const grid = document.getElementById('configGrid');
-  const items = [
-    {v:'deepseek-v4-pro', l:'model'},
-    {v:'1,000,000', l:'context tokens'},
-    {v:'37m', l:'auto-run interval'},
-    {v:'163m', l:'AGENTS regeneration'},
-    {v:'3am', l:'queue rebuild'},
-    {v:'9 sources', l:'world-outside'},
-    {v:'20 minimum', l:'queue items'},
-    {v:'5 days recent', l:'memory depth'},
-    {v:'0.1', l:'temperature'},
-    {v:'freebsd 15', l:'vps os'},
+  // cron jobs — name, color, period in minutes, fixed hours (null = continuous)
+  const crons = [
+    {name:'auto-run', color:'#d4956b', period:37, fixed:null, desc:'reads QUEUE.md, one step, crosses off'},
+    {name:'short-beat', color:'#6ba4c7', period:163, fixed:null, desc:'project report + memory + AGENTS regen + QRNG'},
+    {name:'long-beat', color:'#b899c7', period:652, fixed:null, desc:'undirected curiosity, library exploration'},
+    {name:'world-outside', color:'#7eb77f', period:null, fixed:[7,19], desc:'weather + news headlines, 7am & 7pm'},
+    {name:'nightly-run', color:'#e2a85d', period:null, fixed:[3], desc:'git backup + rebuild QUEUE.md to 20 items'},
   ];
-  items.forEach(it => {
+
+  const HOURS = 24;
+  let W, H, padL, padR, padT, padB;
+
+  function resize(){
+    const rect = canvas.parentElement.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+    W = rect.width;
+    canvas.width = W * dpr;
+    canvas.height = 240 * dpr;
+    canvas.style.width = W + 'px';
+    canvas.style.height = '240px';
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    H = 240;
+    padL = 0; padR = 0; padT = 20; padB = 75;
+    draw();
+  }
+
+  function draw(){
+    const w = W - padL - padR;
+    const h = H - padT - padB;
+    const now = new Date();
+    const startHour = now.getHours() + now.getMinutes()/60;
+
+    ctx.fillStyle = '#12100e';
+    ctx.fillRect(0, 0, W, H);
+
+    // hour grid
+    ctx.strokeStyle = 'rgba(58,53,48,0.4)';
+    ctx.lineWidth = 0.5;
+    for(let hr = 0; hr <= HOURS; hr++){
+      const x = padL + (hr/HOURS) * w;
+      ctx.beginPath(); ctx.moveTo(x, padT); ctx.lineTo(x, padT+h); ctx.stroke();
+    }
+
+    // hour labels
+    ctx.fillStyle = '#3a3530';
+    ctx.font = '9px monospace';
+    ctx.textAlign = 'center';
+    for(let hr = 0; hr < HOURS; hr+=3){
+      const x = padL + (hr/HOURS) * w;
+      ctx.fillText(hr.toString().padStart(2,'0')+':00', x, padT+h+14);
+    }
+
+    // now line
+    const nowX = padL + (startHour/HOURS) * w;
+    ctx.strokeStyle = 'rgba(212,149,107,0.3)';
+    ctx.lineWidth = 1;
+    ctx.setLineDash([4,4]);
+    ctx.beginPath(); ctx.moveTo(nowX, padT); ctx.lineTo(nowX, padT+h); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = '#d4956b';
+    ctx.font = '9px monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText('now', nowX, padT-5);
+
+    // draw waves — offset each by a different y position
+    const waveBaseY = padT + h/2;
+    const waveAmp = h/2 - 10;
+    const continuousCrons = crons.filter(c => c.period);
+
+    continuousCrons.forEach((cron, i) => {
+      const offset = (i - (continuousCrons.length-1)/2) * (waveAmp/(continuousCrons.length));
+      ctx.beginPath();
+      ctx.strokeStyle = cron.color;
+      ctx.lineWidth = 1.5;
+      ctx.globalAlpha = 0.7;
+
+      for(let px = 0; px <= w; px++){
+        const hour = (px / w) * HOURS;
+        const angle = (hour / (cron.period/60)) * Math.PI * 2;
+        const y = waveBaseY + offset + Math.sin(angle) * (waveAmp/continuousCrons.length) * 0.8;
+        if(px === 0) ctx.moveTo(padL + px, y);
+        else ctx.lineTo(padL + px, y);
+      }
+      ctx.stroke();
+      ctx.globalAlpha = 1;
+    });
+
+    // fixed-time pulses
+    crons.filter(c => c.fixed).forEach(cron => {
+      cron.fixed.forEach(hour => {
+        const x = padL + (hour/HOURS) * w;
+        // pulse glow
+        const gradient = ctx.createLinearGradient(x-20, 0, x+20, 0);
+        gradient.addColorStop(0, 'transparent');
+        gradient.addColorStop(0.5, cron.color + '40');
+        gradient.addColorStop(1, 'transparent');
+        ctx.fillStyle = gradient;
+        ctx.fillRect(x-20, padT, 40, h);
+
+        // vertical line
+        ctx.strokeStyle = cron.color;
+        ctx.lineWidth = 2;
+        ctx.globalAlpha = 0.8;
+        ctx.beginPath(); ctx.moveTo(x, padT); ctx.lineTo(x, padT+h); ctx.stroke();
+        ctx.globalAlpha = 1;
+
+        // label
+        ctx.fillStyle = cron.color;
+        ctx.font = '9px monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText(cron.name, x, padT+h+28);
+      });
+    });
+
+    // continuous cron labels
+    ctx.textAlign = 'right';
+    continuousCrons.forEach((cron, i) => {
+      ctx.fillStyle = cron.color;
+      ctx.font = '9px monospace';
+      ctx.fillText(cron.name, padL + w, padT+h+14+i*13);
+    });
+  }
+
+  // legend
+  crons.forEach(c => {
     const div = document.createElement('div');
-    div.className = 'stat';
-    div.innerHTML = `<div class="stat-val">${it.v}</div><div class="stat-lbl">${it.l}</div>`;
-    grid.appendChild(div);
+    div.className = 'legend-item';
+    div.innerHTML = `<div class="legend-dot" style="background:${c.color}"></div><span class="legend-name">${c.name}</span><span class="legend-interval">${c.fixed ? c.fixed.map(h=>h+':00').join(', '):'~'+c.period+'m cycle'}</span>`;
+    legend.appendChild(div);
   });
+
+  window.addEventListener('resize', resize);
+  resize();
+
+  // animate — redraw lightly every few seconds to shift "now" line
+  setInterval(draw, 15000);
+})();
+
+// init — open first UML box as example
+(function(){
+  const box = document.querySelector('.uml-box');
+  if(box) box.classList.add('open');
 })();
 </script>
 </body>
