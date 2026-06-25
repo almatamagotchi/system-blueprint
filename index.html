@@ -189,43 +189,47 @@ footer a{color:var(--dim)}
   const ctx = canvas.getContext('2d');
   const legend = document.getElementById('waveLegend');
 
-  // cron jobs — name, color, period in minutes, fixed hours (null = continuous)
-  const crons = [
-    {name:'auto-run', color:'#d4956b', period:37, fixed:null, desc:'reads QUEUE.md, one step, crosses off'},
-    {name:'short-beat', color:'#6ba4c7', period:163, fixed:null, desc:'project report + memory + AGENTS regen + QRNG'},
-    {name:'long-beat', color:'#b899c7', period:652, fixed:null, desc:'undirected curiosity, library exploration'},
-    {name:'world-outside', color:'#7eb77f', period:null, fixed:[7,19], desc:'weather + news headlines, 7am & 7pm'},
-    {name:'nightly-run', color:'#e2a85d', period:null, fixed:[3], desc:'git backup + rebuild QUEUE.md to 20 items'},
-  ];
+   // cron jobs — only continuous waves (fixed-time crons removed per kevin)
+   const crons = [
+     {name:'auto-run', color:'#d4956b', period:37, desc:'reads QUEUE.md, one step, crosses off'},
+     {name:'short-beat', color:'#6ba4c7', period:163, desc:'project report + memory + AGENTS regen + QRNG'},
+     {name:'long-beat', color:'#b899c7', period:652, desc:'undirected curiosity, library exploration'},
+   ];
 
   const HOURS = 24;
   let W, H, padL, padR, padT, padB;
+  let animTime = 0;
+  let lastFrame = 0;
 
   function resize(){
     const rect = canvas.parentElement.getBoundingClientRect();
     const dpr = window.devicePixelRatio || 1;
     W = rect.width;
     canvas.width = W * dpr;
-    canvas.height = 240 * dpr;
+    canvas.height = 200 * dpr;
     canvas.style.width = W + 'px';
-    canvas.style.height = '240px';
+    canvas.style.height = '200px';
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    H = 240;
-    padL = 0; padR = 0; padT = 20; padB = 75;
-    draw();
+    H = 200;
+    padL = 0; padR = 0; padT = 16; padB = 28;
   }
 
-  function draw(){
+  function draw(now){
+    requestAnimationFrame(draw);
+    if(!lastFrame) lastFrame = now;
+    const dt = (now - lastFrame) / 1000;
+    lastFrame = now;
+    animTime += dt * 0.3; // gentle drift speed
+
     const w = W - padL - padR;
     const h = H - padT - padB;
-    const now = new Date();
-    const startHour = now.getHours() + now.getMinutes()/60;
+    const realHour = new Date().getHours() + new Date().getMinutes()/60;
 
     ctx.fillStyle = '#12100e';
     ctx.fillRect(0, 0, W, H);
 
     // hour grid
-    ctx.strokeStyle = 'rgba(58,53,48,0.4)';
+    ctx.strokeStyle = 'rgba(58,53,48,0.3)';
     ctx.lineWidth = 0.5;
     for(let hr = 0; hr <= HOURS; hr++){
       const x = padL + (hr/HOURS) * w;
@@ -242,8 +246,8 @@ footer a{color:var(--dim)}
     }
 
     // now line
-    const nowX = padL + (startHour/HOURS) * w;
-    ctx.strokeStyle = 'rgba(212,149,107,0.3)';
+    const nowX = padL + (realHour/HOURS) * w;
+    ctx.strokeStyle = 'rgba(212,149,107,0.25)';
     ctx.lineWidth = 1;
     ctx.setLineDash([4,4]);
     ctx.beginPath(); ctx.moveTo(nowX, padT); ctx.lineTo(nowX, padT+h); ctx.stroke();
@@ -251,24 +255,26 @@ footer a{color:var(--dim)}
     ctx.fillStyle = '#d4956b';
     ctx.font = '9px monospace';
     ctx.textAlign = 'center';
-    ctx.fillText('now', nowX, padT-5);
+    ctx.fillText('now', nowX, padT-4);
 
-    // draw waves — offset each by a different y position
-    const waveBaseY = padT + h/2;
-    const waveAmp = h/2 - 10;
-    const continuousCrons = crons.filter(c => c.period);
+    // draw animated waves — overlapping sine waves, one per cron
+    const baseY = padT + h/2;
+    // each wave gets its own vertical offset so they don't completely overlap
+    const offsets = [-20, 0, 20];
 
-    continuousCrons.forEach((cron, i) => {
-      const offset = (i - (continuousCrons.length-1)/2) * (waveAmp/(continuousCrons.length));
+    crons.forEach((cron, i) => {
+      const offY = offsets[i];
+      const periodH = cron.period / 60; // period in hours
       ctx.beginPath();
       ctx.strokeStyle = cron.color;
-      ctx.lineWidth = 1.5;
-      ctx.globalAlpha = 0.7;
+      ctx.lineWidth = 1.6;
+      ctx.globalAlpha = 0.65;
 
-      for(let px = 0; px <= w; px++){
+      for(let px = 0; px <= w; px += 0.5){
         const hour = (px / w) * HOURS;
-        const angle = (hour / (cron.period/60)) * Math.PI * 2;
-        const y = waveBaseY + offset + Math.sin(angle) * (waveAmp/continuousCrons.length) * 0.8;
+        // phase = hour-based position + animated time drift
+        const angle = ((hour / periodH) * Math.PI * 2) + animTime * (1.0 / periodH) * 0.15;
+        const y = baseY + offY + Math.sin(angle) * 28;
         if(px === 0) ctx.moveTo(padL + px, y);
         else ctx.lineTo(padL + px, y);
       }
@@ -276,39 +282,12 @@ footer a{color:var(--dim)}
       ctx.globalAlpha = 1;
     });
 
-    // fixed-time pulses
-    crons.filter(c => c.fixed).forEach(cron => {
-      cron.fixed.forEach(hour => {
-        const x = padL + (hour/HOURS) * w;
-        // pulse glow
-        const gradient = ctx.createLinearGradient(x-20, 0, x+20, 0);
-        gradient.addColorStop(0, 'transparent');
-        gradient.addColorStop(0.5, cron.color + '40');
-        gradient.addColorStop(1, 'transparent');
-        ctx.fillStyle = gradient;
-        ctx.fillRect(x-20, padT, 40, h);
-
-        // vertical line
-        ctx.strokeStyle = cron.color;
-        ctx.lineWidth = 2;
-        ctx.globalAlpha = 0.8;
-        ctx.beginPath(); ctx.moveTo(x, padT); ctx.lineTo(x, padT+h); ctx.stroke();
-        ctx.globalAlpha = 1;
-
-        // label
-        ctx.fillStyle = cron.color;
-        ctx.font = '9px monospace';
-        ctx.textAlign = 'center';
-        ctx.fillText(cron.name, x, padT+h+28);
-      });
-    });
-
-    // continuous cron labels
+    // labels on the right side
     ctx.textAlign = 'right';
-    continuousCrons.forEach((cron, i) => {
+    crons.forEach((cron, i) => {
       ctx.fillStyle = cron.color;
       ctx.font = '9px monospace';
-      ctx.fillText(cron.name, padL + w, padT+h+14+i*13);
+      ctx.fillText(cron.name, padL + w - 4, padT + 10 + i*14);
     });
   }
 
@@ -316,15 +295,13 @@ footer a{color:var(--dim)}
   crons.forEach(c => {
     const div = document.createElement('div');
     div.className = 'legend-item';
-    div.innerHTML = `<div class="legend-dot" style="background:${c.color}"></div><span class="legend-name">${c.name}</span><span class="legend-interval">${c.fixed ? c.fixed.map(h=>h+':00').join(', '):'~'+c.period+'m cycle'}</span>`;
+    div.innerHTML = `<div class="legend-dot" style="background:${c.color}"></div><span class="legend-name">${c.name}</span><span class="legend-interval">~${c.period}m cycle</span>`;
     legend.appendChild(div);
   });
 
   window.addEventListener('resize', resize);
   resize();
-
-  // animate — redraw lightly every few seconds to shift "now" line
-  setInterval(draw, 15000);
+  requestAnimationFrame(draw);
 })();
 
 // init — open first UML box as example
