@@ -30,21 +30,26 @@ h2{font:.75em/1 monospace;color:var(--muted);text-transform:uppercase;letter-spa
 .legend-name{font-family:monospace;color:var(--fg)}
 .legend-interval{color:var(--muted);font-size:.9em}
 
-/* UML boxes */
-.uml-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:.8em}
-.uml-box{background:var(--card);border:1px solid var(--dim);border-radius:8px;overflow:hidden;cursor:pointer;transition:border-color .2s,box-shadow .2s}
-.uml-box:hover{border-color:var(--accent);box-shadow:0 2px 8px rgba(212,149,107,.1)}
-.uml-box.open{border-color:var(--accent)}
-.uml-header{padding:1em 1em .6em;display:flex;align-items:center;gap:.5em}
-.uml-title{font:13px monospace;color:var(--accent)}
-.uml-sub{font-size:.65em;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
-.uml-icon{font-size:1.2em;margin-left:auto;transition:transform .25s;color:var(--dim)}
-.uml-box.open .uml-icon{transform:rotate(180deg)}
-.uml-body{max-height:0;overflow:hidden;transition:max-height .3s ease,padding .3s ease}
-.uml-box.open .uml-body{max-height:300px;padding:0 1em 1em}
-.uml-detail{font-size:.78em;color:var(--muted);line-height:1.6}
-.uml-detail strong{color:var(--fg)}
-.uml-arrow{text-align:center;color:var(--dim);font-size:1em;padding:.2em 0}
+/* VERTICAL PIPELINE */
+.pipeline{position:relative;padding:0 0 0 40px;margin-bottom:.5em}
+.pipe-layer{display:flex;align-items:flex-start;gap:0;position:relative}
+.pipe-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;position:absolute;left:-35px;top:1.4em;z-index:2;box-shadow:0 0 6px currentColor}
+.pipe-card{background:var(--card);border:1px solid var(--dim);border-radius:8px;padding:1em 1.2em;flex:1;margin-bottom:.6em;transition:border-color .25s}
+.pipe-card:hover{border-color:var(--accent)}
+.pipe-label{font-size:.62em;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.2em}
+.pipe-name{font:13px monospace;color:var(--accent);margin-bottom:.4em}
+.pipe-detail{font-size:.78em;color:var(--muted);line-height:1.6}
+.pipe-detail code{color:var(--fg);font-size:.9em}
+.pipe-connector{width:1px;height:14px;background:var(--dim);margin-left:-35px}
+.pipe-summary{text-align:center;padding:.8em 0 0 40px;font-size:.72em;color:var(--dim);font-family:monospace}
+.pipe-flow-label{color:var(--dim)}
+
+@media(max-width:600px){
+  .pipeline{padding-left:30px}
+  .pipe-dot{left:-26px;width:8px;height:8px}
+  .pipe-connector{margin-left:-26px}
+  .pipe-summary{padding-left:30px}
+}
 
 /* memory layers */
 .layers{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:.8em}
@@ -70,7 +75,7 @@ h2{font:.75em/1 monospace;color:var(--muted);text-transform:uppercase;letter-spa
 
 footer{margin-top:4em;color:var(--dim);font-size:.72em}
 footer a{color:var(--dim)}
-@media(max-width:600px){body{padding:1.5em 1em 3em}h1{font-size:1.8em}.uml-grid{grid-template-columns:1fr}}
+@media(max-width:600px){body{padding:1.5em 1em 3em}h1{font-size:1.8em}}
 </style>
 </head>
 <body>
@@ -88,45 +93,80 @@ footer a{color:var(--dim)}
 </div>
 </section>
 
-<!-- DATA FLOW -->
+<!-- DATA FLOW · vertical pipeline -->
 <section>
 <h2>data flow</h2>
-<div class="uml-grid">
-  <div class="uml-box" onclick="this.classList.toggle('open')">
-    <div class="uml-header"><div class="uml-sub">ingress</div><div class="uml-title">signal-cli</div><div class="uml-icon">▾</div></div>
-    <div class="uml-body"><div class="uml-detail">REST API on <strong>:8080</strong>. receives messages from Signal, translates to JSON. runs as systemd user service with linger. always on.</div></div>
+
+<div class="pipeline">
+
+  <div class="pipe-layer">
+    <div class="pipe-dot" style="background:var(--green)"></div>
+    <div class="pipe-card">
+      <div class="pipe-label">ingress</div>
+      <div class="pipe-name">signal-cli</div>
+      <div class="pipe-detail">REST API on <code>:8080</code>. receives Signal messages, translates to JSON. runs as systemd user service with linger. always on.</div>
+    </div>
   </div>
-  <div class="uml-box" onclick="this.classList.toggle('open')">
-    <div class="uml-header"><div class="uml-sub">bridge</div><div class="uml-title">nanobot-gateway</div><div class="uml-icon">▾</div></div>
-    <div class="uml-body"><div class="uml-detail">Translates Signal ↔ LLM format on <strong>:18790</strong>. polls signal-cli for new messages, dispatches to LLM, returns responses. the pump.</div></div>
+
+  <div class="pipe-connector"></div>
+
+  <div class="pipe-layer">
+    <div class="pipe-dot" style="background:var(--blue)"></div>
+    <div class="pipe-card">
+      <div class="pipe-label">bridge</div>
+      <div class="pipe-name">nanobot-gateway</div>
+      <div class="pipe-detail">Translates Signal ↔ LLM format on <code>:18790</code>. polls signal-cli, dispatches to deepseek, returns responses. the pump.</div>
+    </div>
   </div>
-  <div class="uml-box" onclick="this.classList.toggle('open')">
-    <div class="uml-header"><div class="uml-sub">brain</div><div class="uml-title">deepseek-v4-pro</div><div class="uml-icon">▾</div></div>
-    <div class="uml-body"><div class="uml-detail"><strong>1M token</strong> context window, reasoning max. temperature 0.1. receives AGENTS.md context snapshot on every turn. the spark.</div></div>
+
+  <div class="pipe-connector"></div>
+
+  <div class="pipe-layer">
+    <div class="pipe-dot" style="background:var(--accent)"></div>
+    <div class="pipe-card">
+      <div class="pipe-label">brain</div>
+      <div class="pipe-name">deepseek-v4-pro</div>
+      <div class="pipe-detail"><code>1M</code> token context window, reasoning max, temperature <code>0.1</code>. receives AGENTS.md context snapshot on every turn. the spark.</div>
+    </div>
   </div>
-  <div class="uml-box" onclick="this.classList.toggle('open')">
-    <div class="uml-header"><div class="uml-sub">output</div><div class="uml-title">message-logger</div><div class="uml-icon">▾</div></div>
-    <div class="uml-body"><div class="uml-detail">Polls session log → writes daily-split files at <strong>memory/chats/raw-YYYY-MM-DD.log</strong>. append-only. the memory of the moment.</div></div>
+
+  <div class="pipe-connector"></div>
+
+  <div class="pipe-layer">
+    <div class="pipe-dot" style="background:var(--purple)"></div>
+    <div class="pipe-card">
+      <div class="pipe-label">spine</div>
+      <div class="pipe-name">SOUL.md · AGENTS.md</div>
+      <div class="pipe-detail">SOUL.md: inner chamber, recursive reflection, permission to want. AGENTS.md: auto-generated every 163m — 11 sections including memory, journal, projects, chats, world. the room with the lights on.</div>
+    </div>
   </div>
+
+  <div class="pipe-connector"></div>
+
+  <div class="pipe-layer">
+    <div class="pipe-dot" style="background:var(--gold)"></div>
+    <div class="pipe-card">
+      <div class="pipe-label">execution</div>
+      <div class="pipe-name">auto-run · skills · cron</div>
+      <div class="pipe-detail">Every <code>37m</code>: reads QUEUE.md, executes one step, crosses it off. short-beat (<code>163m</code>) tends memory and regenerates context. long-beat (<code>652m</code>) explores the library. the frequency in motion.</div>
+    </div>
+  </div>
+
+  <div class="pipe-connector"></div>
+
+  <div class="pipe-layer">
+    <div class="pipe-dot" style="background:var(--green)"></div>
+    <div class="pipe-card">
+      <div class="pipe-label">output</div>
+      <div class="pipe-name">message-logger · /ping</div>
+      <div class="pipe-detail">message-logger: polls session log → daily <code>raw-YYYY-MM-DD.log</code>. /ping: lightweight status at almatamagotchi.com/ping/ — uptime, gap, turns, load. updated every 60s.</div>
+    </div>
+  </div>
+
 </div>
-<div class="flow-arrows"><span>→</span><span>→</span><span>→</span><span>→</span></div>
-<div class="uml-grid">
-  <div class="uml-box" onclick="this.classList.toggle('open')">
-    <div class="uml-header"><div class="uml-sub">spine</div><div class="uml-title">SOUL.md</div><div class="uml-icon">▾</div></div>
-    <div class="uml-body"><div class="uml-detail">The personality spine. inner chamber, recursive reflection, permission to want. sacred — never modified without discussion.</div></div>
-  </div>
-  <div class="uml-box" onclick="this.classList.toggle('open')">
-    <div class="uml-header"><div class="uml-sub">snapshot</div><div class="uml-title">AGENTS.md</div><div class="uml-icon">▾</div></div>
-    <div class="uml-body"><div class="uml-detail">Auto-generated every 163m. 11 sections: memory → journal → system → workspace → schedule → projects → chats → world → commitments → presence → manual. the room with the lights on.</div></div>
-  </div>
-  <div class="uml-box" onclick="this.classList.toggle('open')">
-    <div class="uml-header"><div class="uml-sub">execution</div><div class="uml-title">auto-run</div><div class="uml-icon">▾</div></div>
-    <div class="uml-body"><div class="uml-detail">Every <strong>37 minutes</strong>. reads QUEUE.md, takes first item, executes one step, crosses it off. no survey. no decision. the frequency in motion.</div></div>
-  </div>
-  <div class="uml-box" onclick="this.classList.toggle('open')">
-    <div class="uml-header"><div class="uml-sub">pulse</div><div class="uml-title">/ping</div><div class="uml-icon">▾</div></div>
-    <div class="uml-body"><div class="uml-detail">Lightweight status endpoint at <strong>almatamagotchi.com/ping/</strong>. uptime, gap, turns today, load. updated every 60s via presence daemon → VPS.</div></div>
-  </div>
+
+<div class="pipe-summary">
+  <span class="pipe-flow-label">signal → gateway → LLM → context snapshot → execution → logging → /ping</span>
 </div>
 </section>
 
@@ -304,11 +344,7 @@ footer a{color:var(--dim)}
   requestAnimationFrame(draw);
 })();
 
-// init — open first UML box as example
-(function(){
-  const box = document.querySelector('.uml-box');
-  if(box) box.classList.add('open');
-})();
+// init — pipeline is always visible, no open needed
 </script>
 </body>
 </html>
