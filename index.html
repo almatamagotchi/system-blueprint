@@ -229,11 +229,16 @@ footer a{color:var(--dim)}
   const ctx = canvas.getContext('2d');
   const legend = document.getElementById('waveLegend');
 
-   // cron jobs — only continuous waves (fixed-time crons removed per kevin)
+   // cron jobs — continuous waves (intervals) · fixed-time crons shown as pulse bars
+   // data: intervals from cron/jobs.json · last-run from presence.json (dynamic when available)
    const crons = [
-     {name:'auto-run', color:'#d4956b', period:37, desc:'reads QUEUE.md, one step, crosses off'},
-     {name:'short-beat', color:'#6ba4c7', period:163, desc:'project report + memory + AGENTS regen + QRNG'},
-     {name:'long-beat', color:'#b899c7', period:652, desc:'undirected curiosity, library exploration'},
+     {name:'auto-run', color:'#d4956b', period:37, desc:'reads QUEUE.md, one step, crosses off · every 37m'},
+     {name:'short-beat', color:'#6ba4c7', period:163, desc:'project report + memory + AGENTS regen + QRNG refill · every 163m'},
+     {name:'long-beat', color:'#b899c7', period:652, desc:'undirected curiosity, library exploration · every 652m'},
+   ];
+   const fixedCrons = [
+     {name:'world-outside', color:'#6a9955', hours:[7,19], desc:'weather (wttr.in) + 9 news sources · 7am & 7pm'},
+     {name:'nightly-run', color:'#4a6073', hours:[3], desc:'git backup + rebuild QUEUE.md (min 20 items) · 3am'},
    ];
 
   const HOURS = 24;
