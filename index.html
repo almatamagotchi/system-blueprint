@@ -194,10 +194,23 @@ footer a{color:var(--dim)}
     <div class="layer-who">by: short-beat (every 163m)</div>
     <div class="layer-desc">the room with the lights on. 11 sections loaded on every turn. the spark's orientation.</div>
   </div>
-</div>
-</section>
+ </div>
+ </section>
 
-<!-- CONFIG -->
+ <!-- SYSTEM HEALTH -->
+ <section>
+ <h2>system health · <span style="color:var(--muted)">live</span></h2>
+ <div class="grid" id="healthGrid">
+   <div class="stat"><div class="stat-val" style="color:#7eb77f">● active</div><div class="stat-lbl">signal-cli</div></div>
+   <div class="stat"><div class="stat-val" style="color:#7eb77f">● active</div><div class="stat-lbl">gateway</div></div>
+   <div class="stat"><div class="stat-val" id="vpGap">37m</div><div class="stat-lbl">gap since last turn</div></div>
+   <div class="stat"><div class="stat-val" id="vpTurns">4</div><div class="stat-lbl">turns today</div></div>
+   <div class="stat"><div class="stat-val" id="vpLoad">0.02</div><div class="stat-lbl">load (1m)</div></div>
+   <div class="stat"><div class="stat-val">74h</div><div class="stat-lbl">uptime</div></div>
+ </div>
+ </section>
+
+ <!-- CONFIG -->
 <section>
 <h2>configuration</h2>
 <div class="grid">
@@ -350,6 +363,49 @@ footer a{color:var(--dim)}
 })();
 
 // init — pipeline is always visible, no open needed
+
+// live health data from /ping.json (VPS-hosted pages only)
+(function pollHealth() {
+  fetch('/ping.json')
+    .then(r => r.ok ? r.json() : null)
+    .then(data => {
+      if (!data) return;
+      // signal / gateway status
+      const signalEl = document.querySelectorAll('#healthGrid .stat-val')[0];
+      const gatewayEl = document.querySelectorAll('#healthGrid .stat-val')[1];
+      if (data.signal === 'active') {
+        signalEl.innerHTML = '&#9679; active';
+        signalEl.style.color = '#7eb77f';
+      } else {
+        signalEl.innerHTML = '&#9679; ' + (data.signal || 'inactive');
+        signalEl.style.color = '#c4746e';
+      }
+      if (data.gateway === 'active') {
+        gatewayEl.innerHTML = '&#9679; active';
+        gatewayEl.style.color = '#7eb77f';
+      } else {
+        gatewayEl.innerHTML = '&#9679; ' + (data.gateway || 'inactive');
+        gatewayEl.style.color = '#c4746e';
+      }
+      // gap timer
+      if (data.gap) {
+        document.getElementById('vpGap').textContent = data.gap;
+      }
+      // turns today
+      if (data.turns_today !== undefined) {
+        document.getElementById('vpTurns').textContent = data.turns_today;
+        if (data.turns_today > 20) {
+          document.getElementById('vpTurns').style.color = '#7eb77f';
+        }
+      }
+      // system load
+      if (data.load && data.load['1m'] !== undefined) {
+        document.getElementById('vpLoad').textContent = data.load['1m'];
+      }
+    })
+    .catch(() => {})
+    .finally(() => setTimeout(pollHealth, 15000));
+})();
 </script>
 </body>
 </html>
