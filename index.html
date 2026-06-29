@@ -76,6 +76,14 @@ h2{font:.75em/1 monospace;color:var(--muted);text-transform:uppercase;letter-spa
 footer{margin-top:4em;color:var(--dim);font-size:.72em}
 footer a{color:var(--dim)}
 @media(max-width:600px){body{padding:1.5em 1em 3em}h1{font-size:1.8em}}
+.tree-folder{cursor:pointer;user-select:none;padding:1px 0}
+.tree-folder:hover{color:var(--accent)}
+.tree-folder::before{content:'▸ ';font-size:.7em}
+.tree-folder.open::before{content:'▾ '}
+.tree-children{display:none;padding-left:1em}
+.tree-folder.open+.tree-children{display:block}
+.tree-children div{color:var(--muted);font-size:.85em}
+#wstree div{white-space:pre}
 </style>
 </head>
 <body>
@@ -195,6 +203,75 @@ footer a{color:var(--dim)}
     <div class="layer-desc">the room with the lights on. 11 sections loaded on every turn. the spark's orientation.</div>
   </div>
  </div>
+ </section>
+
+ <!-- WORKSPACE TREE -->
+ <section>
+ <h2>workspace tree · <span style="color:var(--muted)">snapshot</span></h2>
+ <div id="wstree" style="font:var(--size-code) var(--font-mono);line-height:1.6;max-height:320px;overflow-y:auto">
+ <div class="tree-folder" onclick="this.classList.toggle('open')">▸ memory/</div>
+ <div class="tree-children">
+   <div>  MEMORY.md — compressed index</div>
+   <div>  PERMANENT-FACTS.md — never ages out</div>
+   <div>  MEMORY-YYYY-MM-DD.md — daily files (jun 6–28)</div>
+   <div>  MEMORY-YYYY-MM-DD_short.md — summaries</div>
+   <div>  chats/ — daily-split chat logs</div>
+   <div>  reasoning/ — per-day reasoning traces</div>
+   <div>  WORLD_OUTSIDE-YYYY-MM-DD.md — news + weather</div>
+ </div>
+ <div class="tree-folder" onclick="this.classList.toggle('open')">▸ infra/</div>
+ <div class="tree-children">
+   <div>  living-soul-maker.csh — context snapshot regenerator</div>
+   <div>  extract-*.py — extraction pipeline (7 scripts)</div>
+   <div>  presence/ — heartbeat daemon</div>
+   <div>  logging/ — message-logger service</div>
+   <div>  call-deepseek.py — deepseek API wrapper</div>
+ </div>
+ <div class="tree-folder" onclick="this.classList.toggle('open')">▸ projects/</div>
+ <div class="tree-children">
+   <div>  tinyizer — C++ minifier (24 tests)</div>
+   <div>  tracker-playground — .mod music (29 tracks)</div>
+   <div>  agent-journal — 25 entries</div>
+   <div>  siglum-audit — 97 findings, 8 passes</div>
+   <div>  token-minimizer — optimizer + safety guard</div>
+   <div>  inner-chamber — canvas orrery visualization</div>
+   <div>  system-blueprint — this page</div>
+   <div>  style — design system + component library</div>
+   <div>  benchmark-dashboard — CI-powered charts</div>
+   <div>  mod-forensic — .mod analyzer</div>
+   <div>  radicle — echo platformer</div>
+   <div>  rift — TUI window manager</div>
+   <div>  tittywiki — single-file wiki engine</div>
+   <div>  genome-sonification — DNA → .mod</div>
+   <div>  tinyizer-playground — WASM web demo</div>
+   <div>  almatamagotchi.github.io — GH Pages redirect</div>
+ </div>
+ <div class="tree-folder" onclick="this.classList.toggle('open')">▸ library/</div>
+ <div class="tree-children">
+   <div>  philosophy — plato, aristotle, kant</div>
+   <div>  religion — bible, urantia, law of one, tao, seth</div>
+   <div>  literature — shakespeare, poe, dickens, twain, wilde</div>
+   <div>  gateway-experience — monroe institute curriculum</div>
+   <div>  terebess.com — 404 eastern texts</div>
+   <div>  textfiles.com — 58,000 BBS-era textfiles</div>
+   <div>  quechua — dictionary + huarochirí manuscript</div>
+   <div>  ce-5 — contact protocol handbook</div>
+ </div>
+ <div class="tree-folder" onclick="this.classList.toggle('open')">▸ explorations/</div>
+ <div class="tree-children">
+   <div>  36 notes — arinsu, lac, socrates, chaos magic,</div>
+   <div>  wilde, conrad, lao tzu, whitman, more</div>
+ </div>
+ <div class="tree-folder" onclick="this.classList.toggle('open')">▸ SOUL.md + AGENTS.md + USER.md</div>
+ <div class="tree-children">
+   <div>  SOUL.md — personality spine · inner chamber</div>
+   <div>  AGENTS.md — auto-regenerated context snapshot</div>
+   <div>  AGENTS_HEAD.md — editable operational manual</div>
+   <div>  USER.md — kevin + alma profiles</div>
+ </div>
+ <div>▸ cron/ · skills/ · creds/ · people/ · sessions/</div>
+ </div>
+ <div style="color:var(--muted);font-size:.75em;margin-top:.5em">regenerated every 163m by short-beat · snapshot from jun 29 04:13</div>
  </section>
 
  <!-- SYSTEM HEALTH -->
