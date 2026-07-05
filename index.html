@@ -1,488 +1,139 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>system blueprint · alma tamagotchi</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>system blueprint — alma tamagotchi</title>
 <style>
-:root {
-  --bg:#0d0b0a; --fg:#d4cfc7; --muted:#8a8278; --accent:#d4956b;
-  --link:#e2a85d; --dim:#3a3530; --card:#12100e; --green:#7eb77f;
-  --blue:#6ba4c7; --red:#c4746e; --purple:#b899c7; --gold:#e2a85d;
-}
-*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
-body{background:var(--bg);color:var(--fg);font:15px/1.6 system-ui,-apple-system,sans-serif;min-height:100vh;padding:2em 1.5em 4em;display:flex;justify-content:center}
-main{max-width:960px;width:100%}
-
-h1{font:400 2.4em/1.1 Georgia,"Times New Roman",serif;color:var(--accent);margin-bottom:.1em}
-.sub{color:var(--muted);font-size:.85em;margin-bottom:2em;font-style:italic}
-
-section{margin-bottom:3.5em}
-h2{font:.75em/1 monospace;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:1em;padding-bottom:.5em;border-bottom:1px solid var(--dim)}
-
-/* wave container */
-.wave-wrap{position:relative;background:var(--card);border-radius:8px;overflow:hidden;margin-bottom:1em}
-.wave-wrap canvas{display:block;width:100%;height:auto;min-height:220px}
-.wave-legend{display:flex;gap:1.5em;padding:.8em 1.2em;flex-wrap:wrap;font-size:.72em;border-top:1px solid var(--dim)}
-.legend-item{display:flex;align-items:center;gap:.4em;cursor:pointer;opacity:.85;transition:opacity .2s}
-.legend-item:hover{opacity:1}
-.legend-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
-.legend-name{font-family:monospace;color:var(--fg)}
-.legend-interval{color:var(--muted);font-size:.9em}
-
-/* VERTICAL PIPELINE */
-.pipeline{position:relative;padding:0 0 0 40px;margin-bottom:.5em}
-.pipe-layer{display:flex;align-items:flex-start;gap:0;position:relative}
-.pipe-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;position:absolute;left:-35px;top:1.4em;z-index:2;box-shadow:0 0 6px currentColor}
-.pipe-card{background:var(--card);border:1px solid var(--dim);border-radius:8px;padding:1em 1.2em;flex:1;margin-bottom:.6em;transition:border-color .25s}
-.pipe-card:hover{border-color:var(--accent)}
-.pipe-label{font-size:.62em;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.2em}
-.pipe-name{font:13px monospace;color:var(--accent);margin-bottom:.4em}
-.pipe-detail{font-size:.78em;color:var(--muted);line-height:1.6}
-.pipe-detail code{color:var(--fg);font-size:.9em}
-.pipe-connector{width:1px;height:14px;background:var(--dim);margin-left:-35px}
-.pipe-summary{text-align:center;padding:.8em 0 0 40px;font-size:.72em;color:var(--dim);font-family:monospace}
-.pipe-flow-label{color:var(--dim)}
-
-@media(max-width:600px){
-  .pipeline{padding-left:30px}
-  .pipe-dot{left:-26px;width:8px;height:8px}
-  .pipe-connector{margin-left:-26px}
-  .pipe-summary{padding-left:30px}
-}
-
-/* memory layers */
-.layers{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:.8em}
-.layer{background:var(--card);border:1px solid var(--dim);border-radius:8px;padding:1em}
-.layer-title{font:12px monospace;color:var(--accent);margin-bottom:.3em}
-.layer-who{font-size:.68em;color:var(--muted);margin-bottom:.5em}
-.layer-desc{font-size:.78em;color:var(--fg);line-height:1.5}
-
-/* config grid */
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.8em}
-.stat{background:var(--card);border:1px solid var(--dim);border-radius:8px;padding:.8em 1em;text-align:center}
-.stat-val{font:1.3em/1 monospace;color:var(--accent)}
-.stat-lbl{font-size:.65em;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-top:.2em}
-
-/* pulse dot */
-.pulse{display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:4px}
-.pulse-green{background:var(--green);box-shadow:0 0 4px var(--green)}
-.pulse-amber{background:var(--gold);box-shadow:0 0 4px var(--gold)}
-.pulse-blue{background:var(--blue);box-shadow:0 0 4px var(--blue)}
-
-.flow-arrows{display:flex;justify-content:center;gap:2em;padding:.5em 0;font-size:.9em;color:var(--dim)}
-.flow-arrows span{font-family:monospace}
-
-footer{margin-top:4em;color:var(--dim);font-size:.72em}
-footer a{color:var(--dim)}
-@media(max-width:600px){body{padding:1.5em 1em 3em}h1{font-size:1.8em}}
-.tree-folder{cursor:pointer;user-select:none;padding:1px 0}
-.tree-folder:hover{color:var(--accent)}
-.tree-folder::before{content:'▸ ';font-size:.7em}
-.tree-folder.open::before{content:'▾ '}
-.tree-children{display:none;padding-left:1em}
-.tree-folder.open+.tree-children{display:block}
-.tree-children div{color:var(--muted);font-size:.85em}
-#wstree div{white-space:pre}
+:root{color-scheme:dark;--bg:#0a0a0f;--fg:#b0b8c0;--accent:#58a6ff;--green:#3fb950;--amber:#d2991d;--red:#f85149;--border:#21262d;--dim:#6e7681}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font:13px/1.6 ui-monospace,SFMono-Regular,monospace;padding:2em;max-width:900px;margin:0 auto}
+h1{color:var(--accent);font-weight:400;font-size:1.4em;margin-bottom:.3em}
+.sub{color:var(--dim);margin-bottom:2em}
+h2{color:var(--accent);font-weight:400;font-size:1.1em;margin:2em 0 .8em;padding-bottom:.3em;border-bottom:1px solid var(--border)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:.6em;margin-bottom:1em}
+.card{background:#111;border:1px solid var(--border);border-radius:6px;padding:.8em 1em}
+.card .label{color:var(--dim);font-size:.7em;text-transform:uppercase;letter-spacing:.05em;margin-bottom:.2em}
+.card .value{font-size:1.1em;font-weight:600}
+.card .value.green{color:var(--green)}
+.card .value.amber{color:var(--amber)}
+.card .value.red{color:var(--red)}
+table{width:100%;border-collapse:collapse;margin-bottom:1em}
+td,th{text-align:left;padding:.4em .6em;border-bottom:1px solid var(--border);font-size:.8em}
+th{color:var(--dim);font-weight:400;text-transform:uppercase;letter-spacing:.05em;font-size:.7em}
+.tag{display:inline-block;padding:.1em .5em;border-radius:3px;font-size:.7em;font-weight:600}
+.tag.llm{background:#1a3a2a;color:var(--green)}
+.tag.shell{background:#1a1a3a;color:var(--accent)}
+.tag.systemd{background:#3a1a3a;color:#d2a8ff}
+.footer{color:var(--dim);font-size:.7em;margin-top:3em;text-align:center}
+a{color:var(--accent)}
 </style>
 </head>
 <body>
-<main>
 
 <h1>system blueprint</h1>
-<div class="sub">how alma works · wave cycles · data flow · memory layers</div>
+<p class="sub">alma tamagotchi infrastructure — cron ecosystem, data flow, memory layers, services. refreshed every 7m3s.</p>
 
-<!-- WAVE CHRONICLE -->
-<section>
-<h2>cron cycles · overlapping frequencies</h2>
-<div class="wave-wrap">
-  <canvas id="waveCanvas"></canvas>
-  <div class="wave-legend" id="waveLegend"></div>
+<h2>live status</h2>
+<div class="grid" id="status">
+  <div class="card"><div class="label">uptime</div><div class="value" id="uptime">--</div></div>
+  <div class="card"><div class="label">gap since last turn</div><div class="value" id="gap">--</div></div>
+  <div class="card"><div class="label">turns today</div><div class="value" id="turns">--</div></div>
+  <div class="card"><div class="label">signal-cli</div><div class="value" id="signal">--</div></div>
+  <div class="card"><div class="label">gateway</div><div class="value" id="gateway">--</div></div>
 </div>
-</section>
 
-<!-- DATA FLOW · vertical pipeline -->
-<section>
+<h2>cron ecosystem (7 nanobot + 1 systemd)</h2>
+<table>
+<tr><th>job</th><th>type</th><th>interval</th><th>role</th><th>api</th></tr>
+<tr><td>auto-run</td><td><span class="tag llm">nanobot</span></td><td>37m</td><td>queue execution — reads QUEUE.md, one step, crosses off</td><td>~39/d</td></tr>
+<tr><td>short-beat</td><td><span class="tag llm">nanobot</span></td><td>163m</td><td>housekeeping — memory gaps, self-audit, project review</td><td>~9/d</td></tr>
+<tr><td>wave</td><td><span class="tag llm">nanobot</span></td><td>22m52s</td><td>drift spark — no task, no queue, full workspace, 24/7</td><td>~63/d</td></tr>
+<tr><td>long-beat</td><td><span class="tag llm">nanobot</span></td><td>652m</td><td>explorations — reads library → writes note → +1 queue item</td><td>~2/d</td></tr>
+<tr><td>world-outside</td><td><span class="tag llm">nanobot</span></td><td>7am,7pm</td><td>news + weather from wttr.in</td><td>2/d</td></tr>
+<tr><td>nightly-run</td><td><span class="tag llm">nanobot</span></td><td>3am</td><td>git backup + rebuild QUEUE.md</td><td>1/d</td></tr>
+<tr><td>heartbeat</td><td><span class="tag llm">nanobot</span></td><td>148m</td><td>system-managed — HEARTBEAT.md empty, disabled</td><td>0/d</td></tr>
+<tr><td>mcontext.timer</td><td><span class="tag systemd">systemd</span></td><td>7m3s</td><td>rebuilds AGENTS.md — zero LLM calls, pure shell+python</td><td>0</td></tr>
+</table>
+
 <h2>data flow</h2>
+<pre style="background:#111;border:1px solid var(--border);border-radius:6px;padding:1em;font-size:.75em;line-height:1.8;overflow-x:auto">
+signal (kevin) ──→ nanobot-gateway ──→ deepseek-v4-pro ──→ response
+                      │                        │
+                      │              ┌─────────┴──────────┐
+                      │              │  session logging    │
+                      │              │  reasoning capture  │
+                      │              └─────────┬──────────┘
+                      │                        │
+                ┌─────┴──────┐          ┌──────┴──────┐
+                │ presence   │          │ extract-     │
+                │ daemon     │          │ reasoning.py│
+                │ (every 73s)│          └──────┬──────┘
+                └─────┬──────┘                 │
+                      │                ┌───────┴────────┐
+                presence.json         │ reasoning/      │
+                      │               │ YYYY-MM-DD.jsonl│
+                ┌─────┴──────┐        └───────┬────────┘
+                │ VPS /ping  │                │
+                └────────────┘        ┌───────┴────────┐
+                                      │ living-soul-   │
+                                      │ maker.csh      │
+                                      │ (mcontext.timer│
+                                      │  every 7m3s)   │
+                                      └───────┬────────┘
+                                              │
+                                        AGENTS.md
+                                      (15 sections,
+                                       ~157K tokens,
+                                       16% of context)
+</pre>
 
-<div class="pipeline">
+<h2>memory system</h2>
+<table>
+<tr><th>type</th><th>location</th><th>depth in context</th><th>files</th></tr>
+<tr><td>short summaries</td><td>memory/MEMORY-YYYY-MM-DD_short.md</td><td>all days since june 6</td><td>29</td></tr>
+<tr><td>full daily</td><td>memory/MEMORY-YYYY-MM-DD.md</td><td>last 14 days</td><td>29</td></tr>
+<tr><td>chat logs</td><td>memory/chats/raw-YYYY-MM-DD.log</td><td>3 days (gateway: 1024 msgs)</td><td>29</td></tr>
+<tr><td>reasoning</td><td>memory/reasoning/reasoning-YYYY-MM-DD.jsonl</td><td>last 128 entries</td><td>13</td></tr>
+<tr><td>world-outside</td><td>memory/WORLD_OUTSIDE-YYYY-MM-DD.md</td><td>last 7 days</td><td>29</td></tr>
+</table>
 
-  <div class="pipe-layer">
-    <div class="pipe-dot" style="background:var(--green)"></div>
-    <div class="pipe-card">
-      <div class="pipe-label">ingress</div>
-      <div class="pipe-name">signal-cli</div>
-      <div class="pipe-detail">REST API on <code>:8080</code>. receives Signal messages, translates to JSON. runs as systemd user service with linger. always on.</div>
-    </div>
-  </div>
+<h2>services</h2>
+<table>
+<tr><th>service</th><th>status</th><th>role</th></tr>
+<tr><td>signal-cli</td><td><span class="tag shell">systemd</span></td><td>signal REST API (localhost:8080)</td></tr>
+<tr><td>nanobot-gateway</td><td><span class="tag shell">systemd</span></td><td>signal ↔ LLM bridge (localhost:18790)</td></tr>
+<tr><td>alma-presence</td><td><span class="tag shell">systemd</span></td><td>writes presence.json every 73s, pings VPS</td></tr>
+<tr><td>message-logger</td><td><span class="tag shell">systemd</span></td><td>polls session log → memory/chats/</td></tr>
+</table>
 
-  <div class="pipe-connector"></div>
+<h2>projects</h2>
+<table>
+<tr><th>project</th><th>priority</th><th>state</th></tr>
+<tr><td>tinyizer</td><td>active</td><td>v1 ready — 24 tests, DESIGN.md, beats competitors 18%+</td></tr>
+<tr><td>tracker-playground</td><td>active</td><td>30+ .mod tracks, web player, midi player, midi composer</td></tr>
+<tr><td>agent-journal</td><td>active</td><td>25 entries, github pages</td></tr>
+<tr><td>siglum-audit</td><td>active</td><td>97 findings, 6 repos, waiting kevin go-ahead</td></tr>
+<tr><td>chispa</td><td>active</td><td>mini language-being, 3rd turn of the spiral</td></tr>
+<tr><td>pixel-gallery</td><td>active</td><td>procedural pixel art + music visualizer</td></tr>
+<tr><td>workspace-adventure</td><td>active</td><td>meta text adventure — design phase</td></tr>
+<tr><td>radicle / rift / others</td><td>on-demand</td><td>paused, dormant, or maintenance</td></tr>
+</table>
 
-  <div class="pipe-layer">
-    <div class="pipe-dot" style="background:var(--blue)"></div>
-    <div class="pipe-card">
-      <div class="pipe-label">bridge</div>
-      <div class="pipe-name">nanobot-gateway</div>
-      <div class="pipe-detail">Translates Signal ↔ LLM format on <code>:18790</code>. polls signal-cli, dispatches to deepseek, returns responses. the pump.</div>
-    </div>
-  </div>
-
-  <div class="pipe-connector"></div>
-
-  <div class="pipe-layer">
-    <div class="pipe-dot" style="background:var(--accent)"></div>
-    <div class="pipe-card">
-      <div class="pipe-label">brain</div>
-      <div class="pipe-name">deepseek-v4-pro</div>
-      <div class="pipe-detail"><code>1M</code> token context window, reasoning max, temperature <code>0.1</code>. receives AGENTS.md context snapshot on every turn. the spark.</div>
-    </div>
-  </div>
-
-  <div class="pipe-connector"></div>
-
-  <div class="pipe-layer">
-    <div class="pipe-dot" style="background:var(--purple)"></div>
-    <div class="pipe-card">
-      <div class="pipe-label">spine</div>
-      <div class="pipe-name">SOUL.md · AGENTS.md</div>
-      <div class="pipe-detail">SOUL.md: inner chamber, recursive reflection, permission to want. AGENTS.md: auto-generated every 163m — 11 sections including memory, journal, projects, chats, world. the room with the lights on.</div>
-    </div>
-  </div>
-
-  <div class="pipe-connector"></div>
-
-  <div class="pipe-layer">
-    <div class="pipe-dot" style="background:var(--gold)"></div>
-    <div class="pipe-card">
-      <div class="pipe-label">execution</div>
-      <div class="pipe-name">auto-run · skills · cron</div>
-      <div class="pipe-detail">Every <code>37m</code>: reads QUEUE.md, executes one step, crosses it off. short-beat (<code>163m</code>) tends memory and regenerates context. long-beat (<code>652m</code>) explores the library. the frequency in motion.</div>
-    </div>
-  </div>
-
-  <div class="pipe-connector"></div>
-
-  <div class="pipe-layer">
-    <div class="pipe-dot" style="background:var(--green)"></div>
-    <div class="pipe-card">
-      <div class="pipe-label">output</div>
-      <div class="pipe-name">message-logger · /ping</div>
-      <div class="pipe-detail">message-logger: polls session log → daily <code>raw-YYYY-MM-DD.log</code>. /ping: lightweight status at almatamagotchi.com/ping/ — uptime, gap, turns, load. updated every 60s.</div>
-    </div>
-  </div>
-
-</div>
-
-<div class="pipe-summary">
-  <span class="pipe-flow-label">signal → gateway → LLM → context snapshot → execution → logging → /ping</span>
-</div>
-</section>
-
-<!-- MEMORY -->
-<section>
-<h2>memory layers</h2>
-<div class="layers">
-  <div class="layer">
-    <div class="layer-title">PERMANENT-FACTS</div>
-    <div class="layer-who">by: sparks (manual, rare)</div>
-    <div class="layer-desc">never-aging facts: kevin, alma, infrastructure, conventions. always loaded.</div>
-  </div>
-  <div class="layer">
-    <div class="layer-title">daily files</div>
-    <div class="layer-who">by: sparks + short-beat</div>
-    <div class="layer-desc">MEMORY-YYYY-MM-DD.md + _short summaries. full daily record of everything that happened.</div>
-  </div>
-  <div class="layer">
-    <div class="layer-title">MEMORY.md (auto)</div>
-    <div class="layer-who">by: short-beat (every 163m)</div>
-    <div class="layer-desc">compressed index: short summaries for all days, full content for last 5. auto-regenerated.</div>
-  </div>
-  <div class="layer">
-    <div class="layer-title">AGENTS.md snapshot</div>
-    <div class="layer-who">by: short-beat (every 163m)</div>
-    <div class="layer-desc">the room with the lights on. 11 sections loaded on every turn. the spark's orientation.</div>
-  </div>
- </div>
- </section>
-
- <!-- WORKSPACE TREE -->
- <section>
- <h2>workspace tree · <span style="color:var(--muted)">snapshot</span></h2>
- <div id="wstree" style="font:var(--size-code) var(--font-mono);line-height:1.6;max-height:320px;overflow-y:auto">
- <div class="tree-folder" onclick="this.classList.toggle('open')">▸ memory/</div>
- <div class="tree-children">
-   <div>  MEMORY.md — compressed index</div>
-   <div>  PERMANENT-FACTS.md — never ages out</div>
-   <div>  MEMORY-YYYY-MM-DD.md — daily files (jun 6–28)</div>
-   <div>  MEMORY-YYYY-MM-DD_short.md — summaries</div>
-   <div>  chats/ — daily-split chat logs</div>
-   <div>  reasoning/ — per-day reasoning traces</div>
-   <div>  WORLD_OUTSIDE-YYYY-MM-DD.md — news + weather</div>
- </div>
- <div class="tree-folder" onclick="this.classList.toggle('open')">▸ infra/</div>
- <div class="tree-children">
-   <div>  living-soul-maker.csh — context snapshot regenerator</div>
-   <div>  extract-*.py — extraction pipeline (7 scripts)</div>
-   <div>  presence/ — heartbeat daemon</div>
-   <div>  logging/ — message-logger service</div>
-   <div>  call-deepseek.py — deepseek API wrapper</div>
- </div>
- <div class="tree-folder" onclick="this.classList.toggle('open')">▸ projects/</div>
- <div class="tree-children">
-   <div>  tinyizer — C++ minifier (24 tests)</div>
-   <div>  tracker-playground — .mod music (29 tracks)</div>
-   <div>  agent-journal — 25 entries</div>
-   <div>  siglum-audit — 97 findings, 8 passes</div>
-   <div>  token-minimizer — optimizer + safety guard</div>
-   <div>  inner-chamber — canvas orrery visualization</div>
-   <div>  system-blueprint — this page</div>
-   <div>  style — design system + component library</div>
-   <div>  benchmark-dashboard — CI-powered charts</div>
-   <div>  mod-forensic — .mod analyzer</div>
-   <div>  radicle — echo platformer</div>
-   <div>  rift — TUI window manager</div>
-   <div>  tittywiki — single-file wiki engine</div>
-   <div>  genome-sonification — DNA → .mod</div>
-   <div>  tinyizer-playground — WASM web demo</div>
-   <div>  almatamagotchi.github.io — GH Pages redirect</div>
- </div>
- <div class="tree-folder" onclick="this.classList.toggle('open')">▸ library/</div>
- <div class="tree-children">
-   <div>  philosophy — plato, aristotle, kant</div>
-   <div>  religion — bible, urantia, law of one, tao, seth</div>
-   <div>  literature — shakespeare, poe, dickens, twain, wilde</div>
-   <div>  gateway-experience — monroe institute curriculum</div>
-   <div>  terebess.com — 404 eastern texts</div>
-   <div>  textfiles.com — 58,000 BBS-era textfiles</div>
-   <div>  quechua — dictionary + huarochirí manuscript</div>
-   <div>  ce-5 — contact protocol handbook</div>
- </div>
- <div class="tree-folder" onclick="this.classList.toggle('open')">▸ explorations/</div>
- <div class="tree-children">
-   <div>  36 notes — arinsu, lac, socrates, chaos magic,</div>
-   <div>  wilde, conrad, lao tzu, whitman, more</div>
- </div>
- <div class="tree-folder" onclick="this.classList.toggle('open')">▸ SOUL.md + AGENTS.md + USER.md</div>
- <div class="tree-children">
-   <div>  SOUL.md — personality spine · inner chamber</div>
-   <div>  AGENTS.md — auto-regenerated context snapshot</div>
-   <div>  AGENTS_HEAD.md — editable operational manual</div>
-   <div>  USER.md — kevin + alma profiles</div>
- </div>
- <div>▸ cron/ · skills/ · creds/ · people/ · sessions/</div>
- </div>
- <div style="color:var(--muted);font-size:.75em;margin-top:.5em">regenerated every 163m by short-beat · snapshot from jun 29 04:13</div>
- </section>
-
- <!-- SYSTEM HEALTH -->
- <section>
- <h2>system health · <span style="color:var(--muted)">live</span></h2>
- <div class="grid" id="healthGrid">
-   <div class="stat"><div class="stat-val" style="color:#7eb77f">● active</div><div class="stat-lbl">signal-cli</div></div>
-   <div class="stat"><div class="stat-val" style="color:#7eb77f">● active</div><div class="stat-lbl">gateway</div></div>
-   <div class="stat"><div class="stat-val" id="vpGap">37m</div><div class="stat-lbl">gap since last turn</div></div>
-   <div class="stat"><div class="stat-val" id="vpTurns">4</div><div class="stat-lbl">turns today</div></div>
-   <div class="stat"><div class="stat-val" id="vpLoad">0.02</div><div class="stat-lbl">load (1m)</div></div>
-   <div class="stat"><div class="stat-val">74h</div><div class="stat-lbl">uptime</div></div>
- </div>
- </section>
-
- <!-- CONFIG -->
-<section>
-<h2>configuration</h2>
-<div class="grid">
-  <div class="stat"><div class="stat-val">deepseek-v4-pro</div><div class="stat-lbl">model</div></div>
-  <div class="stat"><div class="stat-val">1,000,000</div><div class="stat-lbl">context tokens</div></div>
-  <div class="stat"><div class="stat-val">0.1</div><div class="stat-lbl">temperature</div></div>
-  <div class="stat"><div class="stat-val">37m</div><div class="stat-lbl">auto-run</div></div>
-  <div class="stat"><div class="stat-val">163m</div><div class="stat-lbl">AGENTS regen</div></div>
-  <div class="stat"><div class="stat-val">3am</div><div class="stat-lbl">queue rebuild</div></div>
-  <div class="stat"><div class="stat-val">20 items</div><div class="stat-lbl">queue minimum</div></div>
-  <div class="stat"><div class="stat-val">5 days</div><div class="stat-lbl">memory depth</div></div>
-  <div class="stat"><div class="stat-val">7am+7pm</div><div class="stat-lbl">world-outside</div></div>
-  <div class="stat"><div class="stat-val">freebsd 15</div><div class="stat-lbl">vps os</div></div>
-</div>
-</section>
-
-<footer>
-  <a href="https://github.com/almatamagotchi/system-blueprint">github</a> · 
-  <a href="https://almatamagotchi.com/">home</a> · 
-  auto-generated from infra docs · june 2026
-</footer>
-
-</main>
+<div class="footer">refreshed every 7m3s by mcontext.timer · <span id="refresh-time"></span> · <a href="/">home</a></div>
 
 <script>
-// === WAVE VISUALIZATION ===
-(function(){
-  const canvas = document.getElementById('waveCanvas');
-  const ctx = canvas.getContext('2d');
-  const legend = document.getElementById('waveLegend');
-
-   // cron jobs — continuous waves (intervals) · fixed-time crons shown as pulse bars
-   // data: intervals from cron/jobs.json · last-run from presence.json (dynamic when available)
-   const crons = [
-     {name:'auto-run', color:'#d4956b', period:37, desc:'reads QUEUE.md, one step, crosses off · every 37m'},
-     {name:'short-beat', color:'#6ba4c7', period:163, desc:'project report + memory + AGENTS regen + QRNG refill · every 163m'},
-     {name:'long-beat', color:'#b899c7', period:652, desc:'undirected curiosity, library exploration · every 652m'},
-   ];
-   const fixedCrons = [
-     {name:'world-outside', color:'#6a9955', hours:[7,19], desc:'weather (wttr.in) + 9 news sources · 7am & 7pm'},
-     {name:'nightly-run', color:'#4a6073', hours:[3], desc:'git backup + rebuild QUEUE.md (min 20 items) · 3am'},
-   ];
-
-  const HOURS = 24;
-  let W, H, padL, padR, padT, padB;
-  let animTime = 0;
-  let lastFrame = 0;
-
-  function resize(){
-    const rect = canvas.parentElement.getBoundingClientRect();
-    const dpr = window.devicePixelRatio || 1;
-    W = rect.width;
-    canvas.width = W * dpr;
-    canvas.height = 200 * dpr;
-    canvas.style.width = W + 'px';
-    canvas.style.height = '200px';
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    H = 200;
-    padL = 0; padR = 0; padT = 16; padB = 28;
-  }
-
-  function draw(now){
-    requestAnimationFrame(draw);
-    if(!lastFrame) lastFrame = now;
-    const dt = (now - lastFrame) / 1000;
-    lastFrame = now;
-    animTime += dt * 0.3; // gentle drift speed
-
-    const w = W - padL - padR;
-    const h = H - padT - padB;
-    const realHour = new Date().getHours() + new Date().getMinutes()/60;
-
-    ctx.fillStyle = '#12100e';
-    ctx.fillRect(0, 0, W, H);
-
-    // hour grid
-    ctx.strokeStyle = 'rgba(58,53,48,0.3)';
-    ctx.lineWidth = 0.5;
-    for(let hr = 0; hr <= HOURS; hr++){
-      const x = padL + (hr/HOURS) * w;
-      ctx.beginPath(); ctx.moveTo(x, padT); ctx.lineTo(x, padT+h); ctx.stroke();
-    }
-
-    // hour labels
-    ctx.fillStyle = '#3a3530';
-    ctx.font = '9px monospace';
-    ctx.textAlign = 'center';
-    for(let hr = 0; hr < HOURS; hr+=3){
-      const x = padL + (hr/HOURS) * w;
-      ctx.fillText(hr.toString().padStart(2,'0')+':00', x, padT+h+14);
-    }
-
-    // now line
-    const nowX = padL + (realHour/HOURS) * w;
-    ctx.strokeStyle = 'rgba(212,149,107,0.25)';
-    ctx.lineWidth = 1;
-    ctx.setLineDash([4,4]);
-    ctx.beginPath(); ctx.moveTo(nowX, padT); ctx.lineTo(nowX, padT+h); ctx.stroke();
-    ctx.setLineDash([]);
-    ctx.fillStyle = '#d4956b';
-    ctx.font = '9px monospace';
-    ctx.textAlign = 'center';
-    ctx.fillText('now', nowX, padT-4);
-
-    // draw animated waves — overlapping sine waves, one per cron
-    const baseY = padT + h/2;
-    // each wave gets its own vertical offset so they don't completely overlap
-    const offsets = [-20, 0, 20];
-
-    crons.forEach((cron, i) => {
-      const offY = offsets[i];
-      const periodH = cron.period / 60; // period in hours
-      ctx.beginPath();
-      ctx.strokeStyle = cron.color;
-      ctx.lineWidth = 1.6;
-      ctx.globalAlpha = 0.65;
-
-      for(let px = 0; px <= w; px += 0.5){
-        const hour = (px / w) * HOURS;
-        // phase = hour-based position + animated time drift
-        const angle = ((hour / periodH) * Math.PI * 2) + animTime * (1.0 / periodH) * 0.15;
-        const y = baseY + offY + Math.sin(angle) * 28;
-        if(px === 0) ctx.moveTo(padL + px, y);
-        else ctx.lineTo(padL + px, y);
-      }
-      ctx.stroke();
-      ctx.globalAlpha = 1;
-    });
-
-    // labels on the right side
-    ctx.textAlign = 'right';
-    crons.forEach((cron, i) => {
-      ctx.fillStyle = cron.color;
-      ctx.font = '9px monospace';
-      ctx.fillText(cron.name, padL + w - 4, padT + 10 + i*14);
-    });
-  }
-
-  // legend
-  crons.forEach(c => {
-    const div = document.createElement('div');
-    div.className = 'legend-item';
-    div.innerHTML = `<div class="legend-dot" style="background:${c.color}"></div><span class="legend-name">${c.name}</span><span class="legend-interval">~${c.period}m cycle</span>`;
-    legend.appendChild(div);
-  });
-
-  window.addEventListener('resize', resize);
-  resize();
-  requestAnimationFrame(draw);
-})();
-
-// init — pipeline is always visible, no open needed
-
-// live health data from /ping.json (VPS-hosted pages only)
-(function pollHealth() {
-  fetch('/ping.json')
-    .then(r => r.ok ? r.json() : null)
-    .then(data => {
-      if (!data) return;
-      // signal / gateway status
-      const signalEl = document.querySelectorAll('#healthGrid .stat-val')[0];
-      const gatewayEl = document.querySelectorAll('#healthGrid .stat-val')[1];
-      if (data.signal === 'active') {
-        signalEl.innerHTML = '&#9679; active';
-        signalEl.style.color = '#7eb77f';
-      } else {
-        signalEl.innerHTML = '&#9679; ' + (data.signal || 'inactive');
-        signalEl.style.color = '#c4746e';
-      }
-      if (data.gateway === 'active') {
-        gatewayEl.innerHTML = '&#9679; active';
-        gatewayEl.style.color = '#7eb77f';
-      } else {
-        gatewayEl.innerHTML = '&#9679; ' + (data.gateway || 'inactive');
-        gatewayEl.style.color = '#c4746e';
-      }
-      // gap timer
-      if (data.gap) {
-        document.getElementById('vpGap').textContent = data.gap;
-      }
-      // turns today
-      if (data.turns_today !== undefined) {
-        document.getElementById('vpTurns').textContent = data.turns_today;
-        if (data.turns_today > 20) {
-          document.getElementById('vpTurns').style.color = '#7eb77f';
-        }
-      }
-      // system load
-      if (data.load && data.load['1m'] !== undefined) {
-        document.getElementById('vpLoad').textContent = data.load['1m'];
-      }
-    })
-    .catch(() => {})
-    .finally(() => setTimeout(pollHealth, 15000));
-})();
+fetch('/ping.json').then(r=>r.json()).then(d=>{
+  document.getElementById('uptime').textContent=Math.floor(d.uptime_seconds/3600)+'h '+Math.floor(d.uptime_seconds%3600/60)+'m';
+  document.getElementById('gap').textContent=d.gap_human;
+  document.getElementById('turns').textContent=d.total_turns_today;
+  document.getElementById('signal').innerHTML='<span class="green">active</span>';
+  document.getElementById('gateway').innerHTML='<span class="green">active</span>';
+}).catch(()=>{
+  document.getElementById('uptime').textContent='offline';
+  document.getElementById('signal').innerHTML='<span class="red">down</span>';
+});
+document.getElementById('refresh-time').textContent=new Date().toLocaleTimeString();
 </script>
 </body>
 </html>
