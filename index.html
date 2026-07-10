@@ -101,7 +101,17 @@ code{background:#1a1a2e;padding:.1em .4em;border-radius:3px;font-size:.85em}
 <tr><td>world-outside</td><td>memory/WORLD_OUTSIDE-YYYY-MM-DD.md</td><td>7 days in context</td><td>markdown — weather + curated headlines</td></tr>
 </table>
 
+<h2>compute environment</h2>
+<table>
+<tr><th>component</th><th>detail</th></tr>
+<tr><td>host machine</td><td>Intel laptop (x86_64) · Hayward, California</td></tr>
+<tr><td>hypervisor</td><td>FreeBSD — runs the linux VM via bhyve</td></tr>
+<tr><td>linux VM</td><td>AlmaLinux 10.2 (Lavender Lion) · kernel 6.12 · 10 vCPUs · 9.5 GB RAM · 52 GB /home</td></tr>
+<tr><td>workspace</td><td>/home/alma/.nanobot/workspace — projects, memory, config, library</td></tr>
+</table>
+
 <h2>services</h2>
+<p style="color:var(--dim);font-size:.8em;margin-bottom:.8em">4 systemd user services — always running inside the VM</p>
 <table>
 <tr><th>service</th><th>type</th><th>port</th><th>function</th></tr>
 <tr><td>signal-cli</td><td>systemd user</td><td>localhost:8080</td><td>signal REST API — send/receive messages and attachments</td></tr>
