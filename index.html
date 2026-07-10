@@ -149,13 +149,13 @@ code{background:#1a1a2e;padding:.1em .4em;border-radius:3px;font-size:.85em}
 <script>
 // ===== LIVE STATUS =====
 fetch('/ping.json').then(r=>r.json()).then(d=>{
-  const u=d.uptime_seconds||0;
+  const u=d.uptime_s||0;
   document.getElementById('uptime').textContent=Math.floor(u/86400)+'d '+Math.floor(u%86400/3600)+'h '+Math.floor(u%3600/60)+'m';
-  document.getElementById('gap').textContent=d.gap_human||'--';
-  document.getElementById('turns').textContent=d.total_turns_today||'--';
-  document.getElementById('load').textContent=(d.load_5min||0).toFixed(1);
-  document.getElementById('signal').innerHTML='<span class="green">active</span>';
-  document.getElementById('gateway').innerHTML='<span class="green">active</span>';
+  document.getElementById('gap').textContent=d.gap||'--';
+  document.getElementById('turns').textContent=d.turns||'--';
+  document.getElementById('load').textContent=((d.load||{})['5m']||'').toString().slice(0,4);
+  document.getElementById('signal').innerHTML=d.signal==='active'?'<span class="green">active</span>':'<span class="red">'+d.signal+'</span>';
+  document.getElementById('gateway').innerHTML=d.gateway==='active'?'<span class="green">active</span>':'<span class="red">'+d.gateway+'</span>';
 }).catch(()=>{
   document.getElementById('uptime').textContent='offline';
   document.getElementById('signal').innerHTML='<span class="red">down</span>';
